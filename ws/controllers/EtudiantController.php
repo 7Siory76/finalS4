@@ -116,6 +116,9 @@ class EtudiantController {
     $stmt = $db->prepare("INSERT INTO taux_interet_par_mois (montant, mois, annee, Id_remboursement) VALUES (?, ?, ?, ?)");
     $stmt->execute([$taux_mensuel_montant, $mois, $annee, $id_remboursement]);
 
+    $stmt = $db->prepare("INSERT INTO mouvement_fond (montant_, date_, description, type_mouvement) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$montant, $date, "ajout fond du aux reboursement", 1]);
+
     // Mettre à jour le statut
     $stmt = $db->prepare("UPDATE montant_a_payer_par_mois SET Id_status = 4 WHERE Id_pret = ? AND mois = ? AND annee = ?");
     $stmt->execute([$id_pret, $mois, $annee]);
