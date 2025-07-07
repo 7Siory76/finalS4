@@ -61,8 +61,8 @@ CREATE TABLE client(
 
 CREATE TABLE pret(
    Id_pret INT AUTO_INCREMENT,
-   date_debut INT NOT NULL,
-   date_fin INT NOT NULL,
+   date_debut DATE NOT NULL,
+   date_fin DATE NOT NULL,
    montant_total INT,
    Id_type_remboursement_ INT NOT NULL,
    Id_usage INT NOT NULL,
@@ -104,6 +104,13 @@ CREATE TABLE historique_remb(
    PRIMARY KEY(Id_historique_remb),
    FOREIGN KEY(Id_remboursement) REFERENCES remboursement(Id_remboursement),
    FOREIGN KEY(Id_status) REFERENCES status(Id_status)
+);
+
+CREATE TABLE etudiant(
+   id Int,
+   nom VARCHAR(150),
+   prenom(50),
+   age int
 );
 
 SET FOREIGN_KEY_CHECKS = 1;

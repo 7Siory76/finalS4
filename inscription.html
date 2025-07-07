@@ -7,114 +7,127 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
+            max-width: 600px;
+            margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            color: #333;
-            text-align: center;
         }
         .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background-color: white;
+            background-color: #f9f9f9;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-            position: sticky;
-            top: 0;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-        .btn {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .btn-edit {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .btn-delete {
-            background-color: #f44336;
-            color: white;
-        }
-        .btn-add {
-            background-color: #2196F3;
-            color: white;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-        }
-        .form-container {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-        .form-group {
-            margin-bottom: 15px;
         }
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input, select {
+        input {
             width: 100%;
             padding: 8px;
+            margin-bottom: 15px;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
         }
-        .form-actions {
-            text-align: right;
-            margin-top: 20px;
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Inscription  Utilisateurs</h1>
-        <div id="userForm" class="form-container">
-            <h2 id="formTitle">Le salaire d'un Utilisateurs</h2>
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="salaire">:</label>
-                    <input type="password" id="mdp" name="mdp" required>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="button" onclick="hideForm()">s'inscrire</button>
-                </div>
-        </div>
+        <h1>Inscription Utilisateurs</h1>
+        <h2>Le salaire d'un Utilisateur</h2>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        
+        <label for="salaire">Salaire:</label>
+        <input type="number" id="salaire" name="salaire" required>
+        
+        <button type="button" onclick="AjouterSalaire()">S'inscrire</button>
+        
+        <div id="message"></div>
     </div>
+
+    <script>
+        const apiBase = "http://localhost/finalS4/ws";
+
+        function ajax(method, url, data, callback, errorCallback) {
+            const xhr = new XMLHttpRequest();
+            xhr.open(method, apiBase + url, true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        callback(JSON.parse(xhr.responseText));
+                    } else {
+                        if (errorCallback) errorCallback(xhr);
+                        else console.error("Erreur:", xhr.status, xhr.statusText);
+                    }
+                }
+            };
+            
+            xhr.onerror = () => {
+                if (errorCallback) errorCallback(xhr);
+                else console.error("Erreur réseau");
+            };
+            
+            xhr.send(data);
+        }
+
+        function AjouterSalaire() {
+            const email = document.getElementById("email").value;
+            const salaire = document.getElementById("salaire").value;
+            const messageDiv = document.getElementById("message");
+            
+            // Validation simple
+            if (!email || !salaire) {
+                messageDiv.textContent = "Veuillez remplir tous les champs";
+                messageDiv.className = "error";
+                return;
+            }
+            
+            const data = `email=${encodeURIComponent(email)}&salaire=${encodeURIComponent(salaire)}`;
+            
+            ajax(
+                "POST", 
+                "/insertSalaire", 
+                data,
+                (response) => {
+                    messageDiv.textContent = "Insertion réussie!";
+                    messageDiv.className = "success";
+                    console.log("Réponse du serveur:", response);
+                },
+                (xhr) => {
+                    messageDiv.textContent = `Erreur: ${xhr.status} - ${xhr.statusText}`;
+                    messageDiv.className = "error";
+                }
+            );
+        }
+    </script>
 </body>
 </html>
