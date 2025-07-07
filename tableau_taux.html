@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestion des prêts</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        .error {
+            color: red;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        .results-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .table-container {
+            flex: 1;
+            min-width: 300px;
+        }
+    </style>
+    <!-- Ajout de Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Consultation des taux de prêt gagnés</h1>
+    
+    <form id="tauxForm">
+        <div class="form-group">
+            <label for="moisDebut">Mois début:</label>
+            <select id="moisDebut" name="moisDebut" required>
+                <option value="">-- Sélectionnez --</option>
+                <option value="01">Janvier</option>
+                <option value="02">Février</option>
+                <option value="03">Mars</option>
+                <option value="04">Avril</option>
+                <option value="05">Mai</option>
+                <option value="06">Juin</option>
+                <option value="07">Juillet</option>
+                <option value="08">Août</option>
+                <option value="09">Septembre</option>
+                <option value="10">Octobre</option>
+                <option value="11">Novembre</option>
+                <option value="12">Décembre</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="anneeDebut">Année début:</label>
+            <select id="anneeDebut" name="anneeDebut" required>
+                <option value="">-- Sélectionnez --</option>
+                <!-- Les options seront générées par JavaScript -->
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="moisFin">Mois fin:</label>
+            <select id="moisFin" name="moisFin" required>
+                <option value="">-- Sélectionnez --</option>
+                <option value="01">Janvier</option>
+                <option value="02">Février</option>
+                <option value="03">Mars</option>
+                <option value="04">Avril</option>
+                <option value="05">Mai</option>
+                <option value="06">Juin</option>
+                <option value="07">Juillet</option>
+                <option value="08">Août</option>
+                <option value="09">Septembre</option>
+                <option value="10">Octobre</option>
+                <option value="11">Novembre</option>
+                <option value="12">Décembre</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="anneeFin">Année fin:</label>
+            <select id="anneeFin" name="anneeFin" required>
+                <option value="">-- Sélectionnez --</option>
+            </select>
+        </div>
+        
+        <button type="submit">Rechercher</button>
+    </form>
+    
+    <div id="resultats"></div>
+
+    <script>
+        const apiBase = 'http://localhost/finalS4/ws'; 
+        let chartInstance = null; // Pour stocker l'instance du graphique
+        
+        function ajax(method, url, data, callback) {
+            const xhr = new XMLHttpRequest();
+            xhr.open(method, apiBase + url, true);
+            xhr.setRequestHeader("Accept", "application/json");
+            
+            xhr.onload = function() {
+                try {
+                    const response = xhr.responseText ? JSON.parse(xhr.responseText) : null;
+                    callback(response);
+                } catch (e) {
+                    console.error("Erreur de parsing JSON:", e, "Réponse:", xhr.responseText);
+                    callback({
+                        error: `Réponse serveur invalide: ${xhr.responseText.substring(0, 100)}`
+                    });
+                }
+            };
+            
+            xhr.onerror = function() {
+                callback({ error: "Erreur réseau" });
+            };
+            
+            xhr.send(data);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYear = new Date().getFullYear();
+            const anneeDebutSelect = document.getElementById('anneeDebut');
+            const anneeFinSelect = document.getElementById('anneeFin');
+            
+            for (let y = currentYear - 10; y <= currentYear + 10; y++) {
+                const option = document.createElement('option');
+                option.value = y;
+                option.textContent = y;
+                anneeDebutSelect.appendChild(option.cloneNode(true));
+                anneeFinSelect.appendChild(option);
+            }
+            
+            document.getElementById('tauxForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                getTaux();
+            });
+        });
+        
+        function getTaux() {
+            const moisDebut = document.getElementById('moisDebut').value;
+            const anneeDebut = document.getElementById('anneeDebut').value;
+            const moisFin = document.getElementById('moisFin').value;
+            const anneeFin = document.getElementById('anneeFin').value;
+            
+            if (!moisDebut || !anneeDebut || !moisFin || !anneeFin) {
+                document.getElementById('resultats').innerHTML = 
+                    '<p class="error">Veuillez remplir tous les champs</p>';
+                return;
+            }
+            
+            const dateDebut = new Date(`${anneeDebut}-${moisDebut}-01`);
+            const dateFin = new Date(`${anneeFin}-${moisFin}-01`);
+            
+            if (dateFin < dateDebut) {
+                document.getElementById('resultats').innerHTML = 
+                    '<p class="error">La date de fin doit être postérieure ou égale à la date de début</p>';
+                return;
+            }
+            
+            const data = `moisDebut=${encodeURIComponent(moisDebut)}` +
+                         `&anneeDebut=${encodeURIComponent(anneeDebut)}` +
+                         `&moisFin=${encodeURIComponent(moisFin)}` +
+                         `&anneeFin=${encodeURIComponent(anneeFin)}`;
+            
+            ajax('GET', '/pret/taux?' + data, null, function(response) {
+                const resultDiv = document.getElementById('resultats');
+                
+                if (response.error) {
+                    resultDiv.innerHTML = `<p class="error">${response.error}</p>`;
+                } else if (response.message) {
+                    resultDiv.innerHTML = `<p>${response.message}</p>`;
+                } else {
+                    let html = '<h2>Résultats</h2>';
+                    html += '<div class="results-container">';
+                    
+                    if (Array.isArray(response) && response.length > 0) {
+                        // Création du tableau
+                        html += '<div class="table-container">';
+                        html += '<table>';
+                        html += '<thead><tr><th>Période</th><th>Montant</th></tr></thead>';
+                        html += '<tbody>';
+                        
+                        response.forEach(item => {
+                            html += `<tr>
+                                <td>${item.mois}/${item.annee}</td>
+                                <td>${item.total_par_mois} Ar</td>
+                            </tr>`;
+                        });
+                        
+                        html += '</tbody></table></div>';
+                        
+                        // Création du canvas pour le graphique
+                        html += '<div class="chart-container">';
+                        html += '<canvas id="tauxChart"></canvas>';
+                        html += '</div>';
+                        
+                        html += '</div>'; // Fermeture de results-container
+                        
+                        resultDiv.innerHTML = html;
+                        
+                        // Générer le graphique
+                        createChart(response);
+                    } else {
+                        html += '<p>Aucun résultat trouvé</p>';
+                        resultDiv.innerHTML = html;
+                    }
+                }
+            });
+        }
+        
+        function createChart(data) {
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+            
+            const ctx = document.getElementById('tauxChart').getContext('2d');
+            
+            const labels = data.map(item => `${item.mois}/${item.annee}`);
+            const amounts = data.map(item => item.total_par_mois);
+            
+            chartInstance = new Chart(ctx, {
+                type: 'bar', 
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Montant des prêts (Ar)',
+                        data: amounts,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Évolution des montants de prêts'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toLocaleString() + ' Ar';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + ' Ar';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

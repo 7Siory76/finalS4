@@ -113,7 +113,6 @@ CREATE TABLE montant_a_payer_par_mois(
     annee int NOT NULL,
     montant DECIMAL(15,2) NOT NULL,
     Id_status INT NOT NULL,
-
     PRIMARY KEY(Id_montant_a_payer),
     FOREIGN KEY(Id_status) REFERENCES status(Id_status),
     FOREIGN KEY(Id_pret) REFERENCES pret(Id_pret)
@@ -130,3 +129,4 @@ CREATE TABLE taux_interet_par_mois(
 );
 
 SET FOREIGN_KEY_CHECKS = 1;
+
