@@ -3,26 +3,6 @@ USE tp_flight;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-CREATE TABLE etudiant (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(100),
-    prenom VARCHAR(100),
-    email VARCHAR(100),
-    age INT
-);
-
-CREATE TABLE type_utilisateur(
-   Id_type_utilisateur INT AUTO_INCREMENT,
-   libelle VARCHAR(50) NOT NULL,
-   PRIMARY KEY(Id_type_utilisateur)
-);
-
-CREATE TABLE type_mouvement(
-   Id_type_mouvement INT AUTO_INCREMENT,
-   type_mouvement BOOLEAN,
-   PRIMARY KEY(Id_type_mouvement)
-);
-
 CREATE TABLE type_pret(
    Id_type_pret INT AUTO_INCREMENT,
    nom VARCHAR(50) NOT NULL,
@@ -60,9 +40,7 @@ CREATE TABLE utilisateur(
    prenom VARCHAR(50),
    email VARCHAR(50) NOT NULL,
    mdp VARCHAR(50) NOT NULL,
-   Id_type_utilisateur INT NOT NULL,
-   PRIMARY KEY(Id_utilisateur),
-   FOREIGN KEY(Id_type_utilisateur) REFERENCES type_utilisateur(Id_type_utilisateur)
+   PRIMARY KEY(Id_utilisateur) 
 );
 
 CREATE TABLE mouvement_fond(
@@ -71,14 +49,14 @@ CREATE TABLE mouvement_fond(
    date_ DATE NOT NULL,
    description VARCHAR(340) NOT NULL,
    Id_type_mouvement INT,
+   type_mouvement BOOLEAN,
    PRIMARY KEY(Id_mouvement_fond),
-   FOREIGN KEY(Id_type_mouvement) REFERENCES type_mouvement(Id_type_mouvement)
 );
 
 CREATE TABLE client(
    Id_client INT AUTO_INCREMENT,
+   email VARCHAR(50) NOT NULL,
    salaire_mensuel INT NOT NULL,
-   Id_utilisateur INT NOT NULL,
    PRIMARY KEY(Id_client),
    FOREIGN KEY(Id_utilisateur) REFERENCES utilisateur(Id_utilisateur)
 );
@@ -91,7 +69,9 @@ CREATE TABLE pret(
    Id_type_remboursement_ INT NOT NULL,
    Id_usage INT NOT NULL,
    Id_type_pret INT NOT NULL,
+   Id_client INT NOT NULL,
    PRIMARY KEY(Id_pret),
+   FOREIGN KEY(Id_client) REFERENCES client(Id_client),
    FOREIGN KEY(Id_type_remboursement_) REFERENCES type_remboursement_(Id_type_remboursement_),
    FOREIGN KEY(Id_usage) REFERENCES usages(Id_usage),
    FOREIGN KEY(Id_type_pret) REFERENCES type_pret(Id_type_pret)
@@ -99,10 +79,12 @@ CREATE TABLE pret(
 
 CREATE TABLE remboursement(
    Id_remboursement INT AUTO_INCREMENT,
+   Id_client INT NOT NULL,
    date_remboursement_ DATE,
    montant DECIMAL(15,2),
    Id_pret INT NOT NULL,
    PRIMARY KEY(Id_remboursement),
+   FOREIGN KEY(Id_client) REFERENCES client(Id_client),
    FOREIGN KEY(Id_pret) REFERENCES pret(Id_pret)
 );
 
