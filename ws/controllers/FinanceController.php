@@ -12,11 +12,11 @@ class FinanceController {
         $db=getDB();
         $data = Flight::request()->data;
         $app_model= new AppModel($db);
-        $app_model->insert('finance', [
-            'montant' => $data->montant,
-            'date' => date('Y-m-d H:i:s')
+        $app_model->insert('mouvement_fond:', [
+            'montant_' => $data->montant,
+            'date_' => date('Y-m-d H:i:s'),  
+            'description_' => $data->description
         ]);
-        $montant = $data->montant;   
         Flight::render('form_ajout.html');
     }
 

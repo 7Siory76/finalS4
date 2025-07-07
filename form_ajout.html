@@ -10,6 +10,15 @@
     <form action="http://localhost/finalS4/ws/finance_routes.php" method="POST">
       <label for="montant">Montant:</label>
       <input type="number" id="montant" name="montant" required />
+
+        <label for="description">Description:</label>
+      <input type="number" id="description" name="description" required />
+
+      <select name="type_mouvement" id="type_mouvement">
+        <option value="0"> Entrée</option>
+        <option value="1">Sortie</option>
+      </select>
+
       <br />
       <button type="submit">Ajouter</button>
     </form>
@@ -36,7 +45,7 @@
         const montant= document.getElementById("montant").value;
         const data = `montant=${encodeURIComponent(
           montant
-        )}`;
+        )}&description=${encodeURIComponent(description)}&type_mouvement=${encodeURIComponent(type_mouvement)}`;
           ajax("POST", "/finance", data, () => {
             resetForm();
           }); 
@@ -44,6 +53,9 @@
 
       function resetForm() {
         document.getElementById("montant").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("type_mouvement").value = "0";
+
       }
     </script>
   </body>
