@@ -1,48 +1,61 @@
+CREATE DATABASE tp_flight CHARACTER SET utf8mb4;
+USE tp_flight;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+CREATE TABLE etudiant (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100),
+    prenom VARCHAR(100),
+    email VARCHAR(100),
+    age INT
+);
+
 CREATE TABLE type_utilisateur(
-   Id_type_utilisateur INT,
+   Id_type_utilisateur INT AUTO_INCREMENT,
    libelle VARCHAR(50) NOT NULL,
    PRIMARY KEY(Id_type_utilisateur)
 );
 
 CREATE TABLE type_mouvement(
-   Id_type_mouvement INT,
-   type_mouvement LOGICAL,
+   Id_type_mouvement INT AUTO_INCREMENT,
+   type_mouvement BOOLEAN,
    PRIMARY KEY(Id_type_mouvement)
 );
 
 CREATE TABLE type_pret(
-   Id_type_pret COUNTER,
+   Id_type_pret INT AUTO_INCREMENT,
    nom VARCHAR(50) NOT NULL,
    taux_interet_annuel DECIMAL(15,2) NOT NULL,
    duree_remboursement_en_mois BIGINT,
    montant_min BIGINT,
    montant_max BIGINT,
    frais INT NOT NULL,
-   remboursement_fixe LOGICAL NOT NULL,
+   remboursement_fixe BOOLEAN NOT NULL,
    PRIMARY KEY(Id_type_pret)
 );
 
 CREATE TABLE usage(
-   Id_usage COUNTER,
+   Id_usage INT AUTO_INCREMENT,
    libelle VARCHAR(50),
    PRIMARY KEY(Id_usage)
 );
 
 CREATE TABLE type_remboursement_(
-   Id_type_remboursement_ COUNTER,
+   Id_type_remboursement_ INT AUTO_INCREMENT,
    libelle VARCHAR(50),
    mois INT,
    PRIMARY KEY(Id_type_remboursement_)
 );
 
 CREATE TABLE status(
-   Id_status INT,
+   Id_status INT AUTO_INCREMENT,
    status VARCHAR(50) NOT NULL,
    PRIMARY KEY(Id_status)
 );
 
 CREATE TABLE utilisateur(
-   Id_utilisateur INT,
+   Id_utilisateur INT AUTO_INCREMENT,
    nom VARCHAR(50) NOT NULL,
    prenom VARCHAR(50),
    email VARCHAR(50) NOT NULL,
@@ -53,7 +66,7 @@ CREATE TABLE utilisateur(
 );
 
 CREATE TABLE mouvement_fond(
-   Id_mouvement_fond INT,
+   Id_mouvement_fond INT AUTO_INCREMENT,
    montant_ INT NOT NULL,
    date_ DATE NOT NULL,
    description VARCHAR(340) NOT NULL,
@@ -63,7 +76,7 @@ CREATE TABLE mouvement_fond(
 );
 
 CREATE TABLE client(
-   Id_client COUNTER,
+   Id_client INT AUTO_INCREMENT,
    salaire_mensuel INT NOT NULL,
    Id_utilisateur INT NOT NULL,
    PRIMARY KEY(Id_client),
@@ -71,7 +84,7 @@ CREATE TABLE client(
 );
 
 CREATE TABLE pret(
-   Id_pret COUNTER,
+   Id_pret INT AUTO_INCREMENT,
    date_debut INT NOT NULL,
    date_fin INT NOT NULL,
    montant_total INT,
@@ -85,7 +98,7 @@ CREATE TABLE pret(
 );
 
 CREATE TABLE remboursement(
-   Id_remboursement INT,
+   Id_remboursement INT AUTO_INCREMENT,
    date_remboursement_ DATE,
    montant DECIMAL(15,2),
    Id_pret INT NOT NULL,
@@ -94,7 +107,7 @@ CREATE TABLE remboursement(
 );
 
 CREATE TABLE historique_pret(
-   Id_historique_pret INT,
+   Id_historique_pret INT AUTO_INCREMENT,
    dateI_pret_hist VARCHAR(50) NOT NULL,
    Id_status INT NOT NULL,
    Id_pret INT NOT NULL,
@@ -104,7 +117,7 @@ CREATE TABLE historique_pret(
 );
 
 CREATE TABLE historique_remb(
-   Id_historique_remb INT,
+   Id_historique_remb INT AUTO_INCREMENT,
    date_remb DATE,
    Id_remboursement INT,
    Id_status INT NOT NULL,
@@ -112,3 +125,5 @@ CREATE TABLE historique_remb(
    FOREIGN KEY(Id_remboursement) REFERENCES remboursement(Id_remboursement),
    FOREIGN KEY(Id_status) REFERENCES status(Id_status)
 );
+
+SET FOREIGN_KEY_CHECKS = 1;
