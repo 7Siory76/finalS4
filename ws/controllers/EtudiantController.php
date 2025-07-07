@@ -32,4 +32,7 @@ class EtudiantController {
         Etudiant::delete($id);
         Flight::json(['message' => 'Étudiant supprimé']);
     }
+    public static function login(){
+        Flight::render('login');
+    }
 }

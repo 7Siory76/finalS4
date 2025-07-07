@@ -35,7 +35,7 @@ CREATE TABLE type_pret(
    PRIMARY KEY(Id_type_pret)
 );
 
-CREATE TABLE usage(
+CREATE TABLE usages(
    Id_usage INT AUTO_INCREMENT,
    libelle VARCHAR(50),
    PRIMARY KEY(Id_usage)
@@ -93,7 +93,7 @@ CREATE TABLE pret(
    Id_type_pret INT NOT NULL,
    PRIMARY KEY(Id_pret),
    FOREIGN KEY(Id_type_remboursement_) REFERENCES type_remboursement_(Id_type_remboursement_),
-   FOREIGN KEY(Id_usage) REFERENCES usage(Id_usage),
+   FOREIGN KEY(Id_usage) REFERENCES usages(Id_usage),
    FOREIGN KEY(Id_type_pret) REFERENCES type_pret(Id_type_pret)
 );
 
