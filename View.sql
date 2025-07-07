@@ -47,10 +47,13 @@ SELECT
     tp.remboursement_fixe,
     c.Id_client,
     c.email AS client_email,
-    c.salaire_mensuel
+    c.salaire_mensuel,
+    tr.libelle
 FROM 
     usages u
 CROSS JOIN 
     type_pret tp
 CROSS JOIN 
-    client c;
+    client c
+CROSS JOIN 
+    type_remboursement_ tr;

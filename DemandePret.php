@@ -63,12 +63,12 @@
             <form>
                 <div class="form-group">
                     <label for="date_debut">Date de début :</label>
-                    <input type="date" id="date_debut" name="date_debut" value="02-02-2025" required onchange="calculerDuree()">
+                    <input type="date" id="date_debut" name="date_debut"  required onchange="calculerDuree()">
                 </div>
 
                 <div class="form-group">
                     <label for="date_fin">Date de fin :</label>
-                    <input type="date" id="date_fin" name="date_fin" value="02-08-2025" required onchange="calculerDuree()">
+                    <input type="date" id="date_fin" name="date_fin"  required onchange="calculerDuree()">
                 </div>
 
                 <div class="form-group">
@@ -97,13 +97,13 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="id_type_remboursement">Type remboursement :</label>
                     <select id="id_type_remboursement" name="id_type_remboursement" required>
                         <option value="">Chargement...</option>
                     </select>
-                </div>
-
+                </div> -->
+                <input type="hidden" id="montant_total_rembourser" name="montant_total_rembourser">
                 <button type="button" onclick="chargerDonnees()">Charger les options</button>
                 <button type="button" onclick="simulerPret()">Simuler le prêt</button>
                 <button type="button" onclick="ajouterUnpret()">Enregistrer le prêt</button>
@@ -195,7 +195,7 @@
                 }
             });
 
-            // Remplir les types de remboursement (en éliminant les doublons)
+            //Remplir les types de remboursement (en éliminant les doublons)
             // const typesRemb = {};
             // const selectTypeRemb = document.getElementById("id_type_remboursement");
             // selectTypeRemb.innerHTML = '<option value="">-- Sélectionnez un type --</option>';
@@ -212,7 +212,7 @@
             // });
 
             // Charger l'historique des prêts
-            chargerHistorique();
+          //  chargerHistorique();
         });
     }
 
@@ -282,7 +282,7 @@
         const interetTotal = montant * tauxMensuel * dureeMois;
         const montantTotal = montant + interetTotal;
        // const mensualite = montantTotal / dureeMois;
-        
+       document.getElementById("montant_total_rembourser").value = montantTotal.toFixed(2);
         // Afficher les résultats
         const simulationHTML = `
             <h4>Résultats de simulation</h4>
@@ -339,31 +339,29 @@
     //     historiqueHTML += '</table>';
     //     document.getElementById("historique-prets").innerHTML = historiqueHTML;
     // }
-
     function ajouterUnpret() {
-        // Récupérer les valeurs du formulaire
-        const pretData = {
-            date_debut: document.getElementById("date_debut").value,
-            date_fin: document.getElementById("date_fin").value,
-            montant_total: document.getElementById("montant_total").value,
-            Id_client: document.getElementById("id_client").value,
-            Id_type_pret: document.getElementById("id_type_pret").value,
-            Id_usage: document.getElementById("id_usage").value,
-            Id_type_remboursement_: 1
-        };
+    // Récupérer les valeurs du formulaire
+    const pretData = {
+        date_debut: document.getElementById("date_debut").value,
+        date_fin: document.getElementById("date_fin").value, // Notez 'date_fin' et non 'date_fin'
+        montant_total: document.getElementById("montant_total").value,
+        montant_total_rembourser: document.getElementById("montant_total_rembourser").value,
+        Id_client: document.getElementById("id_client").value,
+        Id_type_pret: document.getElementById("id_type_pret").value,
+        Id_usage: document.getElementById("id_usage").value,
+       // Id_type_remboursement_: document.getElementById("id_type_remboursement").value
+    };
 
-        // Envoyer les données au serveur
-        ajax("POST", "/pret", JSON.stringify(pretData), (response) => {
-            if (response && response.success) {
-                alert("Prêt enregistré avec succès!");
-                // Recharger l'historique
-                chargerDonnees();
-            } else {
-                alert("Erreur lors de l'enregistrement: " + (response.error || "Inconnue"));
-            }
-        });
-    }
-
+    // Envoyer les données au serveur
+    ajax("POST", "/pret", JSON.stringify(pretData), (response) => {
+        if (response && response.success) {
+            alert("Prêt enregistré avec succès!");
+            chargerDonnees();
+        } else {
+            alert("Erreur lors de l'enregistrement: " + (response.error || "Inconnue"));
+        }
+    });
+}
     // Charger les données au chargement de la page
     window.onload = chargerDonnees;
     </script>

@@ -21,8 +21,3 @@ INSERT INTO type_remboursement_ (libelle, mois)
 VALUES 
 ('Mensuel', 1);
 
-INSERT INTO pret (date_debut, date_fin, montant_total, Id_type_remboursement_, Id_usage, Id_type_pret, Id_client)
-VALUES 
-('2025-07-01', '2045-07-01', 50000000, 1, 1, 1, 1),
-('2025-08-15', '2030-08-15', 10000000, 2, 3, 2, 2),
-('2025-06-10', '2028-06-10', 3000000, 1, 4, 3, 3);
