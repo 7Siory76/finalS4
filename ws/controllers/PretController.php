@@ -84,7 +84,7 @@ class PretController {
                     'mois' => (int)$current->format('m'),
                     'annee' => (int)$current->format('Y'),
                     'montant' => round($montantMensuelBase, 2),
-                    'Id_status' => 2 // Assurez-vous que ce status existe dans votre table
+                    'Id_status' => 1 // Assurez-vous que ce status existe dans votre table
                 ];
                 
                 PretModel::createMontantAPayer($echeance);
