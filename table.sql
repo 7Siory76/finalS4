@@ -105,6 +105,29 @@ CREATE TABLE historique_remb(
    FOREIGN KEY(Id_remboursement) REFERENCES remboursement(Id_remboursement),
    FOREIGN KEY(Id_status) REFERENCES status(Id_status)
 );
+CREATE TABLE montant_a_payer_par_mois(
+    Id_montant_a_payer INT AUTO_INCREMENT,
+    Id_pret INT NOT NULL,
+    mois  int NOT NULL,
+    annee int NOT NULL,
+    montant DECIMAL(15,2) NOT NULL,
+    Id_status INT NOT NULL,
+
+    PRIMARY KEY(Id_montant_a_payer),
+    FOREIGN KEY(Id_status) REFERENCES status(Id_status),
+    FOREIGN KEY(Id_pret) REFERENCES pret(Id_pret)
+);
+
+CREATE TABLE taux_interet_par_mois(
+    id_taux_interet INT AUTO_INCREMENT,
+    montant DECIMAL(15,2) NOT NULL,
+    mois INT NOT NULL,
+    annee INT NOT NULL,
+    Id_remboursement INT NOT NULL,
+    PRIMARY KEY(id_taux_interet),
+    FOREIGN KEY(Id_remboursement) REFERENCES remboursement(Id_remboursement)
+);
+
 
 SET FOREIGN_KEY_CHECKS = 1;
 CREATE VIEW vue_details_pret AS
@@ -186,6 +209,22 @@ INSERT INTO pret (date_debut, date_fin, montant_total, Id_type_remboursement_, I
 VALUES 
 ('2025-01-01', '20300101', 5000000, 1, 2, 2, 1),
 ('2025-04-01', '20290401', 20000000, 2, 1, 1, 2);
+
+INSERT INTO montant_a_payer_par_mois (Id_pret, mois, annee, montant, Id_status)
+VALUES 
+(2, 4, 2025, 131926.13, 1),
+(2, 5, 2025, 131926.13, 1),
+(2, 6, 2025, 131926.13, 1),
+(2, 7, 2025, 131926.13, 1),
+(2, 8, 2025, 131926.13, 1),
+(2, 9, 2025, 131926.13, 1),
+(2, 10, 2025, 131926.13, 1),
+(2, 11, 2025, 131926.13, 1),
+(2, 12, 2025, 131926.13, 1),
+(2, 1, 2026, 131926.13, 1),
+(2, 2, 2026, 131926.13, 1),
+(2, 3, 2026, 131926.13, 1);
+
 
 
 INSERT INTO remboursement (Id_client, date_remboursement_, montant, Id_pret)
