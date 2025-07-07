@@ -3,12 +3,6 @@ USE tp_flight;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-CREATE TABLE type_mouvement(
-   Id_type_mouvement INT AUTO_INCREMENT,
-   type_mouvement BOOLEAN,
-   PRIMARY KEY(Id_type_mouvement)
-);
-
 CREATE TABLE type_pret(
    Id_type_pret INT AUTO_INCREMENT,
    nom VARCHAR(50) NOT NULL,
@@ -46,8 +40,7 @@ CREATE TABLE utilisateur(
    prenom VARCHAR(50),
    email VARCHAR(50) NOT NULL,
    mdp VARCHAR(50) NOT NULL,
-   PRIMARY KEY(Id_utilisateur),
-   FOREIGN KEY(Id_type_utilisateur) REFERENCES type_utilisateur(Id_type_utilisateur)
+   PRIMARY KEY(Id_utilisateur) 
 );
 
 CREATE TABLE mouvement_fond(
@@ -55,39 +48,43 @@ CREATE TABLE mouvement_fond(
    montant_ INT NOT NULL,
    date_ DATE NOT NULL,
    description VARCHAR(340) NOT NULL,
-   Id_type_mouvement INT,
-   PRIMARY KEY(Id_mouvement_fond),
-   FOREIGN KEY(Id_type_mouvement) REFERENCES type_mouvement(Id_type_mouvement)
+   type_mouvement BOOLEAN NOT NULL,
+   PRIMARY KEY(Id_mouvement_fond)
 );
 
 CREATE TABLE client(
    Id_client INT AUTO_INCREMENT,
    email VARCHAR(50) NOT NULL,
    salaire_mensuel INT NOT NULL,
-   PRIMARY KEY(Id_client),
-   FOREIGN KEY(Id_utilisateur) REFERENCES utilisateur(Id_utilisateur)
+   PRIMARY KEY(Id_client)
 );
 
 CREATE TABLE pret(
    Id_pret INT AUTO_INCREMENT,
-   date_debut INT NOT NULL,
-   date_fin INT NOT NULL,
+   date_debut Date NOT NULL,
+   date_fin Date NOT NULL,
    montant_total INT,
    Id_type_remboursement_ INT NOT NULL,
    Id_usage INT NOT NULL,
    Id_type_pret INT NOT NULL,
+   Id_client INT NOT NULL,
+   Id_type_assurance INT,
    PRIMARY KEY(Id_pret),
+   FOREIGN KEY(Id_client) REFERENCES client(Id_client),
    FOREIGN KEY(Id_type_remboursement_) REFERENCES type_remboursement_(Id_type_remboursement_),
    FOREIGN KEY(Id_usage) REFERENCES usages(Id_usage),
-   FOREIGN KEY(Id_type_pret) REFERENCES type_pret(Id_type_pret)
+   FOREIGN KEY(Id_type_pret) REFERENCES type_pret(Id_type_pret),
+  FOREIGN KEY(Id_type_assurance) REFERENCES type_assurance(Id_type_assurance)
 );
 
 CREATE TABLE remboursement(
    Id_remboursement INT AUTO_INCREMENT,
+   Id_client INT NOT NULL,
    date_remboursement_ DATE,
    montant DECIMAL(15,2),
    Id_pret INT NOT NULL,
    PRIMARY KEY(Id_remboursement),
+   FOREIGN KEY(Id_client) REFERENCES client(Id_client),
    FOREIGN KEY(Id_pret) REFERENCES pret(Id_pret)
 );
 
@@ -111,4 +108,34 @@ CREATE TABLE historique_remb(
    FOREIGN KEY(Id_status) REFERENCES status(Id_status)
 );
 
+CREATE TABLE montant_a_payer_par_mois(
+    Id_montant_a_payer INT AUTO_INCREMENT,
+    Id_pret INT NOT NULL,
+    mois  int NOT NULL,
+    annee int NOT NULL,
+    montant DECIMAL(15,2) NOT NULL,
+    Id_status INT NOT NULL,
+    PRIMARY KEY(Id_montant_a_payer),
+    FOREIGN KEY(Id_status) REFERENCES status(Id_status),
+    FOREIGN KEY(Id_pret) REFERENCES pret(Id_pret)
+);
+
+CREATE TABLE taux_interet_par_mois(
+    id_taux_interet INT AUTO_INCREMENT,
+    montant DECIMAL(15,2) NOT NULL,
+    mois INT NOT NULL,
+    annee INT NOT NULL,
+    Id_remboursement INT NOT NULL,
+    PRIMARY KEY(id_taux_interet),
+    FOREIGN KEY(Id_remboursement) REFERENCES remboursement(Id_remboursement)
+);
+
+CREATE TABLE type_assurance(
+    Id_type_assurance INT AUTO_INCREMENT,
+    nom VARCHAR(50) NOT NULL,
+    taux_assurance DECIMAL(16,2),
+    PRIMARY KEY(Id_type_assurance)
+);
+
 SET FOREIGN_KEY_CHECKS = 1;
+
