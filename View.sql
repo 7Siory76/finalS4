@@ -48,7 +48,9 @@ SELECT
     c.Id_client,
     c.email AS client_email,
     c.salaire_mensuel,
-    tr.libelle
+    tr.libelle,
+    ta.taux_assurance,
+    ta.nom
 FROM 
     usages u
 CROSS JOIN 
@@ -56,4 +58,6 @@ CROSS JOIN
 CROSS JOIN 
     client c
 CROSS JOIN 
-    type_remboursement_ tr;
+    type_remboursement_ tr
+CROSS JOIN
+    type_assurance ta;
