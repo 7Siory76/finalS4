@@ -68,11 +68,13 @@ CREATE TABLE pret(
    Id_usage INT NOT NULL,
    Id_type_pret INT NOT NULL,
    Id_client INT NOT NULL,
+--    Id_type_assurance INT,
    PRIMARY KEY(Id_pret),
    FOREIGN KEY(Id_client) REFERENCES client(Id_client),
    FOREIGN KEY(Id_type_remboursement_) REFERENCES type_remboursement_(Id_type_remboursement_),
    FOREIGN KEY(Id_usage) REFERENCES usages(Id_usage),
-   FOREIGN KEY(Id_type_pret) REFERENCES type_pret(Id_type_pret)
+   FOREIGN KEY(Id_type_pret) REFERENCES type_pret(Id_type_pret),
+--    FOREIGN KEY(Id_type_assurance) REFERENCES type_assurance(Id_type_assurance)
 );
 
 CREATE TABLE remboursement(
@@ -127,6 +129,12 @@ CREATE TABLE taux_interet_par_mois(
     PRIMARY KEY(id_taux_interet),
     FOREIGN KEY(Id_remboursement) REFERENCES remboursement(Id_remboursement)
 );
+
+-- CREATE TABLE type_assurance(
+--     Id_type_assurance INT AUTO_INCREMENT,
+--     nom VARCHAR(50) NOT NULL,
+--     PRIMARY KEY(Id_type_assurance)
+-- );
 
 SET FOREIGN_KEY_CHECKS = 1;
 
