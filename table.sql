@@ -1,3 +1,4 @@
+
 CREATE DATABASE tp_flight CHARACTER SET utf8mb4;
 USE tp_flight;
 
@@ -35,7 +36,7 @@ CREATE TABLE type_pret(
    PRIMARY KEY(Id_type_pret)
 );
 
-CREATE TABLE usage(
+CREATE TABLE usages(
    Id_usage INT AUTO_INCREMENT,
    libelle VARCHAR(50),
    PRIMARY KEY(Id_usage)
