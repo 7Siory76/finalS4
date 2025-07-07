@@ -3,20 +3,6 @@ USE tp_flight;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-CREATE TABLE etudiant (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(100),
-    prenom VARCHAR(100),
-    email VARCHAR(100),
-    age INT
-);
-
-CREATE TABLE type_utilisateur(
-   Id_type_utilisateur INT AUTO_INCREMENT,
-   libelle VARCHAR(50) NOT NULL,
-   PRIMARY KEY(Id_type_utilisateur)
-);
-
 CREATE TABLE type_mouvement(
    Id_type_mouvement INT AUTO_INCREMENT,
    type_mouvement BOOLEAN,
@@ -35,7 +21,7 @@ CREATE TABLE type_pret(
    PRIMARY KEY(Id_type_pret)
 );
 
-CREATE TABLE usage(
+CREATE TABLE usages(
    Id_usage INT AUTO_INCREMENT,
    libelle VARCHAR(50),
    PRIMARY KEY(Id_usage)
@@ -60,7 +46,6 @@ CREATE TABLE utilisateur(
    prenom VARCHAR(50),
    email VARCHAR(50) NOT NULL,
    mdp VARCHAR(50) NOT NULL,
-   Id_type_utilisateur INT NOT NULL,
    PRIMARY KEY(Id_utilisateur),
    FOREIGN KEY(Id_type_utilisateur) REFERENCES type_utilisateur(Id_type_utilisateur)
 );
@@ -77,8 +62,8 @@ CREATE TABLE mouvement_fond(
 
 CREATE TABLE client(
    Id_client INT AUTO_INCREMENT,
+   email VARCHAR(50) NOT NULL,
    salaire_mensuel INT NOT NULL,
-   Id_utilisateur INT NOT NULL,
    PRIMARY KEY(Id_client),
    FOREIGN KEY(Id_utilisateur) REFERENCES utilisateur(Id_utilisateur)
 );
@@ -93,7 +78,7 @@ CREATE TABLE pret(
    Id_type_pret INT NOT NULL,
    PRIMARY KEY(Id_pret),
    FOREIGN KEY(Id_type_remboursement_) REFERENCES type_remboursement_(Id_type_remboursement_),
-   FOREIGN KEY(Id_usage) REFERENCES usage(Id_usage),
+   FOREIGN KEY(Id_usage) REFERENCES usages(Id_usage),
    FOREIGN KEY(Id_type_pret) REFERENCES type_pret(Id_type_pret)
 );
 
