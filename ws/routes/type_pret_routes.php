@@ -5,3 +5,4 @@ require_once __DIR__ . '/../controllers/PretController.php';
 
 Flight::route('POST /create_type_pret', ['TypePretController', 'ajouterTypePret']);
 Flight::route('GET /pret/taux', ['PretController', 'getTaux']);
+Flight::route('POST /generatePDF', ['PretController', 'generatePDF']);

@@ -37,9 +37,16 @@
         border-radius: 4px;
         cursor: pointer;
         width: 100%;
+        margin-bottom: 10px;
       }
       button:hover {
         background: #0056b3;
+      }
+      .pdf-button {
+        background: #28a745;
+      }
+      .pdf-button:hover {
+        background: #1e7e34;
       }
       .message {
         margin: 10px 0;
@@ -56,6 +63,17 @@
         background: #f8d7da;
         color: #721c24;
         border: 1px solid #f5c6cb;
+      }
+      .pdf-section {
+        margin-top: 20px;
+        padding: 20px;
+        background: #e9ecef;
+        border-radius: 8px;
+        border: 2px solid #dee2e6;
+      }
+      .pdf-section h3 {
+        margin-top: 0;
+        color: #495057;
       }
     </style>
   </head>
@@ -83,6 +101,38 @@
       <br />
       <button type="submit">Ajouter</button>
     </form>
+
+    <div class="pdf-section">
+      <h3>Génération de rapport PDF</h3>
+      
+      <label for="nom">Nom:</label>
+      <input type="text" id="nom" name="nom" placeholder="Nom du demandeur" />
+      
+      <label for="type_pret">Type de prêt:</label>
+      <select id="type_pret" name="type_pret">
+        <option value="Personnel">Personnel</option>
+        <option value="Immobilier">Immobilier</option>
+        <option value="Auto">Auto</option>
+        <option value="Consommation">Consommation</option>
+      </select>
+      
+      <label for="duree">Durée (en mois):</label>
+      <input type="number" id="duree" name="duree" placeholder="Durée du prêt" />
+      
+      <label for="montant_emprunter">Montant emprunter:</label>
+      <input type="number" id="montant_emprunter" name="montant_emprunter" placeholder="Montant à emprunter" />
+      
+      <label for="interets_totaux">Intérêts totaux:</label>
+      <input type="number" id="interets_totaux" name="interets_totaux" placeholder="Intérêts totaux" />
+      
+      <label for="montant_total_estime">Montant total estimé:</label>
+      <input type="number" id="montant_total_estime" name="montant_total_estime" placeholder="Montant total estimé" />
+      
+      <label for="mensualite_estimee">Mensualité estimée:</label>
+      <input type="number" id="mensualite_estimee" name="mensualite_estimee" placeholder="Mensualité estimée" />
+      
+      <button type="button" class="pdf-button" onclick="generatePDF()">Télécharger en PDF</button>
+    </div>
 
     <script>
       const apiBase = "http://localhost/finalS4/ws";
@@ -144,6 +194,64 @@
             console.error("Erreur AJAX:", error);
           }
         );
+      }
+      
+      function generatePDF() {
+        const nom = document.getElementById("nom").value;
+        const typePret = document.getElementById("type_pret").value;
+        const duree = document.getElementById("duree").value;
+        const montantEmprunter = document.getElementById("montant_emprunter").value;
+        const interetsTotaux = document.getElementById("interets_totaux").value;
+        const montantTotalEstime = document.getElementById("montant_total_estime").value;
+        const mensualiteEstimee = document.getElementById("mensualite_estimee").value;
+        
+        // Vérifier que tous les champs PDF sont remplis
+        if (!nom || !typePret || !duree || !montantEmprunter || !interetsTotaux || !montantTotalEstime || !mensualiteEstimee) {
+          showMessage("Veuillez remplir tous les champs pour générer le PDF", "error");
+          return;
+        }
+        
+        // Désactiver le bouton pendant la requête
+        const pdfBtn = document.querySelector('.pdf-button');
+        pdfBtn.disabled = true;
+        pdfBtn.textContent = "Génération en cours...";
+        
+        // Créer un formulaire temporaire pour le téléchargement
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = apiBase + '/generatePDF';
+        form.style.display = 'none';
+        
+        // Ajouter les champs du formulaire
+        const fields = {
+          nom: nom,
+          typePret: typePret,
+          duree: duree,
+          montantEmprunter: montantEmprunter,
+          interetsTotaux: interetsTotaux,
+          montantTotalEstime: montantTotalEstime,
+          mensualiteEstimee: mensualiteEstimee
+        };
+        
+        Object.keys(fields).forEach(key => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = fields[key];
+          form.appendChild(input);
+        });
+        
+        // Ajouter le formulaire au document et le soumettre
+        document.body.appendChild(form);
+        form.submit();
+        
+        // Nettoyer et réactiver le bouton
+        document.body.removeChild(form);
+        setTimeout(() => {
+          pdfBtn.disabled = false;
+          pdfBtn.textContent = "Télécharger en PDF";
+          showMessage("PDF généré avec succès!", "success");
+        }, 1000);
       }
       
       function showMessage(text, type) {
