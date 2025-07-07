@@ -3,60 +3,173 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Ajouter un fond</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+      }
+      form {
+        background: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+      }
+      label {
+        display: block;
+        margin: 10px 0 5px 0;
+        font-weight: bold;
+      }
+      input, select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 4px;
+        display: none;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+    </style>
   </head>
   <body>
     <h2>Ajouter un fond</h2>
-    <form action="http://localhost/finalS4/ws/finance_routes.php" method="POST">
+    
+    <div id="message" class="message"></div>
+    
+    <form onsubmit="ajouterFond(); return false;">
       <label for="montant">Montant:</label>
       <input type="number" id="montant" name="montant" required />
-
-        <label for="description">Description:</label>
-      <input type="number" id="description" name="description" required />
-
+      
+      <label for="description">Description:</label>
+      <input type="text" id="description" name="description" required />
+      
+      <label for="date">Date:</label>
+      <input type="date" id="date" name="date" required />
+      
+      <label for="type_mouvement">Type de mouvement:</label>
       <select name="type_mouvement" id="type_mouvement">
-        <option value="0"> Entrée</option>
+        <option value="0">Entrée</option>
         <option value="1">Sortie</option>
       </select>
-
+      
       <br />
       <button type="submit">Ajouter</button>
     </form>
 
     <script>
       const apiBase = "http://localhost/finalS4/ws";
-
-      function ajax(method, url, data, callback) {
+      
+      function ajax(method, url, data, callback, errorCallback) {
         const xhr = new XMLHttpRequest();
         xhr.open(method, apiBase + url, true);
         xhr.setRequestHeader(
           "Content-Type",
           "application/x-www-form-urlencoded"
         );
+        
         xhr.onreadystatechange = () => {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            callback(JSON.parse(xhr.responseText));
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              try {
+                const response = JSON.parse(xhr.responseText);
+                callback(response);
+              } catch (e) {
+                errorCallback("Erreur de parsing JSON");
+              }
+            } else {
+              errorCallback(`Erreur HTTP ${xhr.status}: ${xhr.statusText}`);
+            }
           }
         };
+        
+        xhr.onerror = () => {
+          errorCallback("Erreur de connexion");
+        };
+        
         xhr.send(data);
       }
-
+      
       function ajouterFond() {
-        const montant= document.getElementById("montant").value;
-        const data = `montant=${encodeURIComponent(
-          montant
-        )}&description=${encodeURIComponent(description)}&type_mouvement=${encodeURIComponent(type_mouvement)}`;
-          ajax("POST", "/finance", data, () => {
+        const montant = document.getElementById("montant").value;
+        const description = document.getElementById("description").value;
+        const type_mouvement = document.getElementById("type_mouvement").value;
+        const date = document.getElementById("date").value;
+       
+        const data = `montant=${encodeURIComponent(montant)}&description=${encodeURIComponent(description)}&type_mouvement=${encodeURIComponent(type_mouvement)}&date=${encodeURIComponent(date)}`;
+       
+        // Désactiver le bouton pendant la requête
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Envoi en cours...";
+        
+        ajax("POST", "/finance", data, 
+          (response) => {
+            showMessage(response.message || "Mouvement ajouté avec succès!", "success");
             resetForm();
-          }); 
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Ajouter";
+          },
+          (error) => {
+            showMessage("Erreur: " + error, "error");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Ajouter";
+            console.error("Erreur AJAX:", error);
+          }
+        );
       }
-
+      
+      function showMessage(text, type) {
+        const messageDiv = document.getElementById("message");
+        messageDiv.textContent = text;
+        messageDiv.className = `message ${type}`;
+        messageDiv.style.display = "block";
+        
+        // Cacher le message après 5 secondes
+        setTimeout(() => {
+          messageDiv.style.display = "none";
+        }, 5000);
+      }
+      
       function resetForm() {
         document.getElementById("montant").value = "";
         document.getElementById("description").value = "";
         document.getElementById("type_mouvement").value = "0";
-
+        document.getElementById("date").value = "";
       }
+      
+      // Définir la date d'aujourd'hui par défaut
+      document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+      });
     </script>
   </body>
 </html>

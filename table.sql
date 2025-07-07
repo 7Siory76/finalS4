@@ -40,7 +40,7 @@ CREATE TABLE utilisateur(
    prenom VARCHAR(50),
    email VARCHAR(50) NOT NULL,
    mdp VARCHAR(50) NOT NULL,
-   PRIMARY KEY(Id_utilisateur)
+   PRIMARY KEY(Id_utilisateur) 
 );
 
 CREATE TABLE mouvement_fond(
@@ -48,27 +48,28 @@ CREATE TABLE mouvement_fond(
    montant_ INT NOT NULL,
    date_ DATE NOT NULL,
    description VARCHAR(340) NOT NULL,
-    type_mouvement BOOLEAN,
-   PRIMARY KEY(Id_mouvement_fond),
+   type_mouvement BOOLEAN NOT NULL,
+   PRIMARY KEY(Id_mouvement_fond)
 );
 
 CREATE TABLE client(
    Id_client INT AUTO_INCREMENT,
    email VARCHAR(50) NOT NULL,
    salaire_mensuel INT NOT NULL,
-   PRIMARY KEY(Id_client),
-   FOREIGN KEY(Id_utilisateur) REFERENCES utilisateur(Id_utilisateur)
+   PRIMARY KEY(Id_client)
 );
 
 CREATE TABLE pret(
    Id_pret INT AUTO_INCREMENT,
-   date_debut INT NOT NULL,
-   date_fin INT NOT NULL,
+   date_debut Date NOT NULL,
+   date_fin Date NOT NULL,
    montant_total INT,
    Id_type_remboursement_ INT NOT NULL,
    Id_usage INT NOT NULL,
    Id_type_pret INT NOT NULL,
+   Id_client INT NOT NULL,
    PRIMARY KEY(Id_pret),
+   FOREIGN KEY(Id_client) REFERENCES client(Id_client),
    FOREIGN KEY(Id_type_remboursement_) REFERENCES type_remboursement_(Id_type_remboursement_),
    FOREIGN KEY(Id_usage) REFERENCES usages(Id_usage),
    FOREIGN KEY(Id_type_pret) REFERENCES type_pret(Id_type_pret)
@@ -76,10 +77,12 @@ CREATE TABLE pret(
 
 CREATE TABLE remboursement(
    Id_remboursement INT AUTO_INCREMENT,
+   Id_client INT NOT NULL,
    date_remboursement_ DATE,
    montant DECIMAL(15,2),
    Id_pret INT NOT NULL,
    PRIMARY KEY(Id_remboursement),
+   FOREIGN KEY(Id_client) REFERENCES client(Id_client),
    FOREIGN KEY(Id_pret) REFERENCES pret(Id_pret)
 );
 
