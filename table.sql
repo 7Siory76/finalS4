@@ -47,7 +47,6 @@ CREATE TABLE utilisateur(
    email VARCHAR(50) NOT NULL,
    mdp VARCHAR(50) NOT NULL,
    PRIMARY KEY(Id_utilisateur),
-   FOREIGN KEY(Id_type_utilisateur) REFERENCES type_utilisateur(Id_type_utilisateur)
 );
 
 CREATE TABLE mouvement_fond(
@@ -65,7 +64,6 @@ CREATE TABLE client(
    email VARCHAR(50) NOT NULL,
    salaire_mensuel INT NOT NULL,
    PRIMARY KEY(Id_client),
-   FOREIGN KEY(Id_utilisateur) REFERENCES utilisateur(Id_utilisateur)
 );
 
 CREATE TABLE pret(
