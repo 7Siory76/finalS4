@@ -23,7 +23,7 @@
         }
         public static function getPretDetail() {
             $db = getDB();
-            $stmt = $db->query("SELECT * FROM vue_pret_detail");
+            $stmt = $db->query("SELECT * FROM vue_usage_type_pret_client");
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     }
