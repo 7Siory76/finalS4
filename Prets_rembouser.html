@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion des remboursements des prets</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, button { margin: 5px; padding: 5px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+
+  <h1>Gestion des remboursements des prets</h1>
+
+  
+
+  <table id="table-prets">
+    <thead>
+      <tr>
+        <th>ID_prets</th><th>date_debut</th><th>date_fin</th><th>Montant a payer</th><th>client_email</th><th>type pret</th><th>taux anuelle</th><th>Min</th><th>Max</th><th>remboursement_fixe</th><th>Type remboursement</th><th></th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const apiBase = "http://localhost/finalS4/ws";
+
+    function ajax(method, url, data, callback) {
+      const xhr = new XMLHttpRequest();
+      xhr.open(method, apiBase + url, true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          callback(JSON.parse(xhr.responseText));
+        }
+      };
+      xhr.send(data);
+    }
+
+    function chargerPrets() {
+      ajax("GET", "/prets", null, (data) => {
+        const tbody = document.querySelector("#table-prets tbody");
+        tbody.innerHTML = "";
+        data.forEach(e => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+                <td>${e.Id_pret}</td>
+                <td>${e.date_debut}</td>
+                <td>${e.date_fin}</td>
+                <td>${e.montant_total}</td>
+                <td>${e.client_email}</td>
+                <td>${e.type_pret_nom}</td>
+                <td>${e.taux_interet_annuel}</td>
+                <td>${e.montant_min}</td>
+                <td>${e.montant_max}</td>
+                <td>${e.remboursement_fixe}</td>
+                <td>${e.type_remboursement_libelle}</td>
+                <td>
+                    <button onclick='supprimerEtudiant(${e.Id_pret})'>regulariser</button>
+                </td>
+                `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+    chargerPrets();
+  </script>
+
+</body>
+</html>

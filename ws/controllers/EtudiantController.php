@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/Etudiant.php';
+require_once __DIR__ . '/../models/Pret_rModel.php';
 require_once __DIR__ . '/../helpers/Utils.php';
 
 
@@ -9,7 +10,18 @@ class EtudiantController {
         $etudiants = Etudiant::getAll();
         Flight::json($etudiants);
     }
-
+    public static function getAllPret() {
+    try {
+        $Prets = Pret_rModel::getAll();
+        if (!is_array($Prets)) {
+            Flight::json(["error" => "Données invalides ou vide"]);
+        } else {
+            Flight::json($Prets);
+        }
+    } catch (Exception $e) {
+        Flight::json(["error" => $e->getMessage()]);
+    }
+}
     public static function getById($id) {
         $etudiant = Etudiant::getById($id);
         Flight::json($etudiant);
