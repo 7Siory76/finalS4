@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models;
+require_once __DIR__ . '/../db.php';
 
 use Flight;
 use PDO;
