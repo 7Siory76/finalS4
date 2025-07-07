@@ -20,4 +20,3 @@ VALUES
 INSERT INTO type_remboursement_ (libelle, mois)
 VALUES 
 ('Mensuel', 1);
-

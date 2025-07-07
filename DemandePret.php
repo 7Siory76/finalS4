@@ -340,25 +340,39 @@
     //     document.getElementById("historique-prets").innerHTML = historiqueHTML;
     // }
     function ajouterUnpret() {
-    // Récupérer les valeurs du formulaire
-    const pretData = {
-        date_debut: document.getElementById("date_debut").value,
-        date_fin: document.getElementById("date_fin").value, // Notez 'date_fin' et non 'date_fin'
-        montant_total: document.getElementById("montant_total").value,
-        montant_total_rembourser: document.getElementById("montant_total_rembourser").value,
-        Id_client: document.getElementById("id_client").value,
-        Id_type_pret: document.getElementById("id_type_pret").value,
-        Id_usage: document.getElementById("id_usage").value,
-       // Id_type_remboursement_: document.getElementById("id_type_remboursement").value
-    };
+    // Validation simple côté client
+    const dateDebut = document.getElementById("date_debut").value;
+    const dateFin = document.getElementById("date_fin").value;
+    const montantTotal = document.getElementById("montant_total").value;
+    const idClient = document.getElementById("id_client").value;
+    const idTypePret = document.getElementById("id_type_pret").value;
+    const idUsage = document.getElementById("id_usage").value;
+    const montantTotalRembourser = document.getElementById("montant_total_rembourser").value;
+
+    if (!dateDebut || !dateFin || !montantTotal || !idClient || !idTypePret || !idUsage) {
+        alert("Veuillez remplir tous les champs et simuler le prêt avant d'enregistrer !");
+        return;
+    }
+
+    // Construire la chaîne de données au format URL-encodé (noms cohérents)
+    const dataToSend = `date_debut=${encodeURIComponent(dateDebut)}` +
+                       `&date_fin=${encodeURIComponent(dateFin)}` +
+                       `&montant_total=${encodeURIComponent(montantTotal)}` +
+                       `&montant_total_rembourser=${encodeURIComponent(montantTotalRembourser)}` +
+                       `&Id_client=${encodeURIComponent(idClient)}` +
+                       `&Id_type_pret=${encodeURIComponent(idTypePret)}` + // Cohérence avec majuscule
+                       `&Id_usage=${encodeURIComponent(idUsage)}`;
 
     // Envoyer les données au serveur
-    ajax("POST", "/pret", JSON.stringify(pretData), (response) => {
-        if (response && response.success) {
+    ajax("POST", "/pret", dataToSend, (response) => {
+        console.log("Réponse du serveur:", response); // Debug
+        if (response && response.message && response.message.includes('succès')) {
             alert("Prêt enregistré avec succès!");
-            chargerDonnees();
+            // Réinitialiser le formulaire
+            document.querySelector('form').reset();
+            document.getElementById("simulation-details").innerHTML = '<p>Veuillez remplir le formulaire et cliquer sur "Simuler le prêt"</p>';
         } else {
-            alert("Erreur lors de l'enregistrement: " + (response.error || "Inconnue"));
+            alert("Erreur lors de l'enregistrement: " + (response.message || "Erreur inconnue"));
         }
     });
 }

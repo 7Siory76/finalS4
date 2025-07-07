@@ -74,7 +74,7 @@ CREATE TABLE pret(
    FOREIGN KEY(Id_type_remboursement_) REFERENCES type_remboursement_(Id_type_remboursement_),
    FOREIGN KEY(Id_usage) REFERENCES usages(Id_usage),
    FOREIGN KEY(Id_type_pret) REFERENCES type_pret(Id_type_pret),
---    FOREIGN KEY(Id_type_assurance) REFERENCES type_assurance(Id_type_assurance)
+  FOREIGN KEY(Id_type_assurance) REFERENCES type_assurance(Id_type_assurance)
 );
 
 CREATE TABLE remboursement(
