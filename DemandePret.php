@@ -107,7 +107,9 @@
                 <button type="button" onclick="chargerDonnees()">Charger les options</button>
                 <button type="button" onclick="simulerPret()">Simuler le prêt</button>
                 <button type="button" onclick="ajouterUnpret()">Enregistrer le prêt</button>
+                <button type="button" class="pdf-button" onclick="generatePDF()">Télécharger en PDF</button>
             </form>
+
         </div>
 
         <div class="simulation-container">
@@ -215,7 +217,62 @@
           //  chargerHistorique();
         });
     }
-
+    function generatePDF() {
+        //const nom = document.getElementById("nom").value;
+        const typePret = document.getElementById("id_type_pret").value;
+        // const duree = document.getElementById("duree").value;
+        // const montantEmprunter = document.getElementById("montant_emprunter").value;
+        // const interetsTotaux = document.getElementById("interets_totaux").value;
+        // const montantTotalEstime = document.getElementById("montant_total_estime").value;
+        
+        // Vérifier que tous les champs PDF sont remplis
+        // if (!nom || !typePret || !duree || !montantEmprunter || !interetsTotaux || !montantTotalEstime || !mensualiteEstimee) {
+        //   showMessage("Veuillez remplir tous les champs pour générer le PDF", "error");
+        //   return;
+        // }
+        
+        // Désactiver le bouton pendant la requête
+        const pdfBtn = document.querySelector('.pdf-button');
+        pdfBtn.disabled = true;
+        pdfBtn.textContent = "Génération en cours...";
+        
+        // Créer un formulaire temporaire pour le téléchargement
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = apiBase + '/generatePDF';
+        form.style.display = 'none';
+        
+        // Ajouter les champs du formulaire
+        const fields = {
+          //nom: nom,
+          typePret: typePret,
+        //   duree: duree,
+        //   montantEmprunter: montantEmprunter,
+        //   interetsTotaux: interetsTotaux,
+        //   montantTotalEstime: montantTotalEstime,
+        //   mensualiteEstimee: mensualiteEstimee
+        };
+        
+        Object.keys(fields).forEach(key => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = fields[key];
+          form.appendChild(input);
+        });
+        
+        // Ajouter le formulaire au document et le soumettre
+        document.body.appendChild(form);
+        form.submit();
+        
+        // Nettoyer et réactiver le bouton
+        document.body.removeChild(form);
+        setTimeout(() => {
+          pdfBtn.disabled = false;
+          pdfBtn.textContent = "Télécharger en PDF";
+          showMessage("PDF généré avec succès!", "success");
+        }, 1000);
+      }
     function calculerDuree() {
         const dateDebut = document.getElementById("date_debut").value;
         const dateFin = document.getElementById("date_fin").value;

@@ -56,8 +56,9 @@ CROSS JOIN
 CROSS JOIN 
     client c
 CROSS JOIN 
-    type_remboursement_ tr;
-
+    type_remboursement_ tr
+CROSS JOIN  
+    type_assurance ta;
 
     
 CREATE VIEW vue_details_pret AS

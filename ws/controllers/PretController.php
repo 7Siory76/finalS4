@@ -127,20 +127,20 @@ class PretController {
         require_once 'fpdf186/fpdf.php';
         
         // Récupération des données POST
-        $nom = Flight::request()->data['nom'] ?? '';
-        $typePret = Flight::request()->data['typePret'] ?? '';
-        $duree = Flight::request()->data['duree'] ?? '';
-        $montantEmprunter = Flight::request()->data['montantEmprunter'] ?? '';
-        $interetsTotaux = Flight::request()->data['interetsTotaux'] ?? '';
-        $montantTotalEstime = Flight::request()->data['montantTotalEstime'] ?? '';
-        $mensualiteEstimee = Flight::request()->data['mensualiteEstimee'] ?? '';
+       // $nom = Flight::request()->data['nom'] ?? '';
+        $typePret = Flight::request()->data['id_type_pret'] ?? '';
+        //$duree = Flight::request()->data['duree'] ?? '';
+        //$montantEmprunter = Flight::request()->data['montantEmprunter'] ?? '';
+        //$interetsTotaux = Flight::request()->data['interetsTotaux'] ?? '';
+        //$montantTotalEstime = Flight::request()->data['montantTotalEstime'] ?? '';
+        //$mensualiteEstimee = Flight::request()->data['mensualiteEstimee'] ?? '';
         
         // Validation des données
-        if (empty($nom) || empty($typePret) || empty($duree) || empty($montantEmprunter) || 
-            empty($interetsTotaux) || empty($montantTotalEstime) || empty($mensualiteEstimee)) {
-            Flight::json(['error' => 'Tous les champs sont requis pour générer le PDF'], 400);
-            return;
-        }
+        // if (empty($nom) || empty($typePret) || empty($duree) || empty($montantEmprunter) || 
+        //     empty($interetsTotaux) || empty($montantTotalEstime) || empty($mensualiteEstimee)) {
+        //     Flight::json(['error' => 'Tous les champs sont requis pour générer le PDF'], 400);
+        //     return;
+        // }
         
         try {
             
@@ -156,7 +156,7 @@ class PretController {
             $pdf->SetFont('Arial', 'B', 12);
             $pdf->Cell(0, 10, 'Informations du demandeur', 0, 1, 'L');
             $pdf->SetFont('Arial', '', 11);
-            $pdf->Cell(0, 8, 'Nom: ' . $nom, 0, 1, 'L');
+            $pdf->Cell(0, 8, 'Nom: ', 0, 1, 'L');
             $pdf->Cell(0, 8, 'Date de simulation: ' . date('d/m/Y'), 0, 1, 'L');
             $pdf->Ln(5);
             
@@ -216,7 +216,7 @@ class PretController {
             $pdf->Cell(0, 8, 'Montant emprunte: ' . number_format($montantEmprunter, 0, ',', ' ') . ' €', 0, 1, 'L');
             $pdf->Cell(0, 8, 'Cout total du credit: ' . number_format($coutTotal, 2, ',', ' ') . ' €', 0, 1, 'L');
             $pdf->Cell(0, 8, 'Taux d\'interet approximatif: ' . number_format($tauxApprox, 2, ',', ' ') . ' %', 0, 1, 'L');
-            $pdf->Cell(0, 8, 'Duree de remboursement: ' . $duree . ' mois (' . round($duree/12, 1) . ' ans)', 0, 1, 'L');
+            $pdf->Cell(0, 8, 'Duree de remboursement: ' . ' mois (' . round($duree/12, 1) . ' ans)', 0, 1, 'L');
             $pdf->Cell(0, 8, 'Mensualite: ' . number_format($mensualiteEstimee, 2, ',', ' ') . ' €', 0, 1, 'L');
             
            
