@@ -2,66 +2,221 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Gestion des remboursements des prets</title>
+  <title>Gestion des remboursements des prêts</title>
   <style>
+    :root {
+      --primary-color: #1a3a1a;
+      --secondary-color: #000000;
+      --success-color: #2ecc71;
+      --danger-color: #e74c3c;
+      --light-color: #ecf0f1;
+      --dark-color: #34495e;
+      --border-color: #bdc3c7;
+      --text-color: #2c3e50;
+      --hover-color: #3a7a3a;
+    }
+    
     body {
-      font-family: sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 20px;
       margin: 0;
       height: 100vh;
       display: flex;
       flex-direction: column;
+      background-color: #f5f7fa;
+      color: var(--text-color);
     }
+    
     h1 {
       margin-bottom: 20px;
+      color: var(--dark-color);
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary-color);
     }
+    
     #main-container {
       display: flex;
       gap: 20px;
-      flex: 1; /* prendre tout l'espace vertical */
+      flex: 1;
       overflow: hidden;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 15px;
     }
+    
     #zone-regularisation {
       flex: 1;
-      border: 1px solid #ccc;
-      padding: 10px;
+      border: 1px solid var(--border-color);
+      padding: 20px;
       overflow-y: auto;
       display: block;
       min-width: 300px;
       max-width: 40%;
-      background: #fafafa;
+      background: white;
+      border-radius: 6px;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
     }
+    
     #table-prets-container {
       flex: 2;
       overflow-x: auto;
       overflow-y: auto;
+      border-radius: 6px;
     }
+    
     table {
       border-collapse: collapse;
       width: 100%;
       margin-top: 0;
       table-layout: fixed;
       word-wrap: break-word;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
+    
     th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
+      border: 1px solid var(--border-color);
+      padding: 12px;
       text-align: left;
       font-size: 14px;
     }
+    
     th {
-      background-color: #f2f2f2;
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
     }
+    
+    tr:nth-child(even) {
+      background-color: var(--light-color);
+    }
+    
+    tr:hover {
+      background-color: var(--hover-color);
+    }
+    
     input, button {
       margin: 5px 5px 10px 0;
-      padding: 5px;
+      padding: 8px 12px;
       font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+    
+    input {
+      width: 150px;
+    }
+    
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: var(--secondary-color);
+    }
+    
+    .payment-status {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      margin-right: 5px;
+      text-align: center;
+      line-height: 20px;
+      font-size: 12px;
+    }
+    
+    .paid {
+      background-color: var(--success-color);
+      color: white;
+    }
+    
+    .unpaid {
+      background-color: var(--danger-color);
+      color: white;
+    }
+    
+    .calendar-month {
+      margin-bottom: 20px;
+    }
+    
+    .calendar-header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 8px;
+      text-align: center;
+      border-radius: 4px 4px 0 0;
+      margin-bottom: 0;
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      padding: 10px;
+      background-color: white;
+      border-radius: 0 0 4px 4px;
+      border: 1px solid var(--border-color);
+      border-top: none;
+    }
+    
+    .month-cell {
+      padding: 8px;
+      text-align: center;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      transition: all 0.2s;
+    }
+    
+    .month-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .month-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .payment-info {
+      font-size: 12px;
+    }
+    
+    .regularization-section {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .regularization-section h4 {
+      margin-top: 0;
+      color: var(--dark-color);
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .success-message {
+      color: var(--success-color);
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <h1>Gestion des remboursements des prets</h1>
+  <h1>Gestion des remboursements des prêts</h1>
 
   <div id="main-container">
     <!-- Zone de régularisation à gauche -->
@@ -72,7 +227,18 @@
       <table id="table-prets">
         <thead>
           <tr>
-            <th>ID_prets</th><th>date_debut</th><th>date_fin</th><th>Montant a payer</th><th>client_email</th><th>type pret</th><th>taux anuelle</th><th>Min</th><th>Max</th><th>remboursement_fixe</th><th>Type remboursement</th><th></th>
+            <th>ID Prêt</th>
+            <th>Date début</th>
+            <th>Date fin</th>
+            <th>Montant</th>
+            <th>Client</th>
+            <th>Type prêt</th>
+            <th>Taux annuel</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Remb. fixe</th>
+            <th>Type remb.</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -105,13 +271,13 @@
             <td>${e.Id_pret}</td>
             <td>${e.date_debut}</td>
             <td>${e.date_fin}</td>
-            <td>${e.montant_total}</td>
+            <td>${parseFloat(e.montant_total).toLocaleString('fr-FR')} Ar</td>
             <td>${e.client_email}</td>
             <td>${e.type_pret_nom}</td>
-            <td>${e.taux_interet_annuel}</td>
-            <td>${e.montant_min}</td>
-            <td>${e.montant_max}</td>
-            <td>${e.remboursement_fixe}</td>
+            <td>${e.taux_interet_annuel}%</td>
+            <td>${parseFloat(e.montant_min).toLocaleString('fr-FR')} Ar</td>
+            <td>${parseFloat(e.montant_max).toLocaleString('fr-FR')} Ar</td>
+            <td>${e.remboursement_fixe === '1' ? 'Oui' : 'Non'}</td>
             <td>${e.type_remboursement_libelle}</td>
             <td>
               <button onclick='Show_regularisation(${e.Id_pret})'>Régulariser</button>
@@ -122,104 +288,261 @@
       });
     }
 
-    function Show_regularisation(id_pret) {
-      ajax("GET", `/paiements/${id_pret}`, null, (data) => {
-        const div = document.getElementById("zone-regularisation");
-        div.innerHTML = `<h3>Calendrier des paiements - prêt #${id_pret}</h3>`;
+ // Correction de la fonction Show_regularisation
+function Show_regularisation(id_pret) {
+  ajax("GET", `/paiements/${id_pret}`, null, (data) => {
+    const div = document.getElementById("zone-regularisation");
+    div.innerHTML = `<h3 style="color: var(--dark-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 10px;">Calendrier des paiements - Prêt #${id_pret}</h3>`;
 
-        if (!Array.isArray(data) || data.length === 0) {
-          div.innerHTML += "<p>Aucune donnée de paiement trouvée.</p>";
-          div.style.display = "block";
-          return;
-        }
-
-        // Grouper les paiements par année
-        const grouped = {};
-        let dernierNonPaye = null;
-
-        data.forEach(p => {
-          const annee = p.annee;
-          if (!grouped[annee]) grouped[annee] = {};
-          grouped[annee][p.mois] = {
-            statut: p.Id_status === 4,
-            montant: p.montant,
-            mois: p.mois,
-            annee: p.annee
-          };
-
-          // Si impayé et plus récent que le précédent
-          if (
-              p.Id_status === 1 && (
-                !dernierNonPaye ||
-                p.annee < dernierNonPaye.annee ||
-                (p.annee === dernierNonPaye.annee && p.mois < dernierNonPaye.mois)
-              )
-            ) {
-              dernierNonPaye = { ...p };
-            }
-        });
-
-        const moisNoms = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Aoû", "Sep", "Oct", "Nov", "Déc"];
-        let html = "";
-
-        // Zone bouton de régularisation
-        if (dernierNonPaye) {
-          html += `
-            <div style="margin-bottom:10px;">
-              <p><strong>Dernier mois non payé :</strong> ${moisNoms[dernierNonPaye.mois - 1]} ${dernierNonPaye.annee}, montant = ${parseFloat(dernierNonPaye.montant).toLocaleString('fr-FR')} Ar</p>
-              <label>Date de paiement :</label>
-              <input type="date" id="dateRemb" />
-              <button onclick="validerRemboursement(${id_pret}, ${dernierNonPaye.montant}, ${dernierNonPaye.mois}, ${dernierNonPaye.annee})">Valider</button>
-            </div>
-          `;
-        } else {
-          html += `<p style="color:green;">Tous les mois sont déjà payés ✅</p>`;
-        }
-
-        for (const annee in grouped) {
-          html += `<h4>${annee}</h4><table><tr>`;
-          for (let i = 1; i <= 12; i++) {
-            const dataMois = grouped[annee][i];
-            const nom = moisNoms[i - 1];
-
-            let affichage = "";
-            if (dataMois) {
-              const symbole = dataMois.statut ? "✅" : "❌";
-              const montant = parseFloat(dataMois.montant).toLocaleString('fr-FR', {minimumFractionDigits: 2});
-              affichage = `<span>${symbole} (${montant})</span>`;
-            }
-
-            html += `
-              <td style="padding:10px;text-align:center;border:1px solid #ccc;">
-                ${nom}<br>${affichage}
-              </td>`;
-
-            if (i % 4 === 0) html += "</tr><tr>";
-          }
-          html += "</tr></table><br/>";
-        }
-
-        div.innerHTML += html;
-        div.style.display = "block";
-      });
+    if (!Array.isArray(data) || data.length === 0) {
+      div.innerHTML += "<p>Aucune donnée de paiement trouvée.</p>";
+      div.style.display = "block";
+      return;
     }
 
-    function validerRemboursement(id_pret, montant, mois, annee) {
-      const date = document.getElementById("dateRemb").value;
-      if (!date) {
-        alert("Veuillez choisir une date de paiement.");
-        return;
+    // Grouper les paiements par année
+    const grouped = {};
+    let dernierNonPaye = null;
+
+    data.forEach(p => {
+      const annee = p.annee;
+      if (!grouped[annee]) grouped[annee] = {};
+      
+      // ✅ Correction : vérifier le bon statut pour "payé"
+      const estPaye = p.Id_status === 4; // Ajustez selon votre table status
+      
+      grouped[annee][p.mois] = {
+        statut: estPaye,
+        montant: p.montant,
+        mois: p.mois,
+        annee: p.annee,
+        id_status: p.Id_status
+      };
+
+      // ✅ Correction : chercher le dernier paiement NON payé
+      if (!estPaye && (
+          !dernierNonPaye ||
+          p.annee < dernierNonPaye.annee ||
+          (p.annee === dernierNonPaye.annee && p.mois < dernierNonPaye.mois)
+        )) {
+        // ✅ Correction : stocker l'objet directement, pas dans un wrapper
+        dernierNonPaye = p;
       }
+    });
 
-      // Appeler API pour insérer dans remboursement + update status
-      const data = `id_pret=${id_pret}&montant=${montant}&mois=${mois}&annee=${annee}&date_remboursement=${date}`;
+    const moisNoms = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", 
+                      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    let html = "";
 
-      ajax("POST", "/valider_paiement", data, (response) => {
-        alert(response.message);
-        Show_regularisation(id_pret); // recharger l'affichage
-      });
+    // Zone bouton de régularisation
+    if (dernierNonPaye) {
+      html += `
+        <div class="regularization-section">
+          <h4>Régularisation du paiement</h4>
+          <p><strong>Dernier mois non payé :</strong> ${moisNoms[dernierNonPaye.mois - 1]} ${dernierNonPaye.annee}</p>
+          <p><strong>Montant à payer :</strong> ${parseFloat(dernierNonPaye.montant).toLocaleString('fr-FR', {minimumFractionDigits: 2})} Ar</p>
+          <p><strong>Statut actuel :</strong> ${dernierNonPaye.id_status}</p>
+          <label>Date de paiement :</label>
+          <input type="date" id="dateRemb" />
+          <div class="action-buttons">
+            <button onclick="validerRemboursement(${id_pret}, ${dernierNonPaye.montant}, ${dernierNonPaye.mois}, ${dernierNonPaye.annee})">
+              Valider le paiement
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      html += `<div class="success-message">Tous les paiements sont à jour</div>`;
     }
 
+    // Création du calendrier par année
+    for (const annee in grouped) {
+      html += `<div class="calendar-month">
+                <h4 class="calendar-header">${annee}</h4>
+                <div class="calendar-grid">`;
+      
+      for (let i = 1; i <= 12; i++) {
+        const dataMois = grouped[annee][i];
+        const nom = moisNoms[i - 1].substring(0, 3);
+        
+        if (dataMois) {
+          const statutClass = dataMois.statut ? "paid" : "unpaid";
+          const symbole = dataMois.statut ? "✓" : "✗";
+          const montant = parseFloat(dataMois.montant).toLocaleString('fr-FR', {minimumFractionDigits: 2});
+          
+          html += `
+            <div class="month-cell">
+              <div class="month-name">${nom}</div>
+              <div class="payment-status ${statutClass}">${symbole}</div>
+              <div class="payment-info">${montant} Ar</div>
+              <div style="font-size: 10px; color: #666;">Status: ${dataMois.id_status}</div>
+            </div>`;
+        } else {
+          html += `
+            <div class="month-cell" style="opacity:0.5;">
+              <div class="month-name">${nom}</div>
+              <div class="payment-info">-</div>
+            </div>`;
+        }
+      }
+      
+      html += `</div></div>`;
+    }
+
+    div.innerHTML += html;
+    div.style.display = "block";
+    
+    // Définir la date par défaut pour aujourd'hui
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("dateRemb").value = today;
+  });
+}
+
+// Correction de la fonction validerRemboursement
+function validerRemboursement(id_pret, montant, mois, annee) {
+  const date = document.getElementById("dateRemb").value;
+  if (!date) {
+    alert("Veuillez choisir une date de paiement.");
+    return;
+  }
+
+  if (!confirm(`Confirmez-vous le paiement de ${parseFloat(montant).toLocaleString('fr-FR')} Ar pour le mois ${mois}/${annee} ?`)) {
+    return;
+  }
+
+  // Appeler API pour insérer dans remboursement + update status
+  const data = `id_pret=${id_pret}&montant=${montant}&mois=${mois}&annee=${annee}&date_remboursement=${date}`;
+
+  ajax("POST", "/valider_paiement", data, (response) => {
+    alert(response.message);
+    
+    // ✅ IMPORTANT : Recharger complètement l'affichage après validation
+    Show_regularisation(id_pret);
+    
+    // ✅ Optionnel : Recharger aussi la liste des prêts pour mettre à jour le tableau principal
+    // chargerPrets();
+  });
+}
+
+// Fonction Show_regularisation corrigée avec gestion du cache
+function Show_regularisation(id_pret) {
+  // ✅ Ajouter un timestamp pour éviter le cache
+  const timestamp = new Date().getTime();
+  
+  ajax("GET", `/paiements/${id_pret}?t=${timestamp}`, null, (data) => {
+    const div = document.getElementById("zone-regularisation");
+    div.innerHTML = `<h3 style="color: var(--dark-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 10px;">Calendrier des paiements - Prêt #${id_pret}</h3>`;
+
+    console.log("Données reçues:", data); // ✅ Debug : voir les données
+
+    if (!Array.isArray(data) || data.length === 0) {
+      div.innerHTML += "<p>Aucune donnée de paiement trouvée.</p>";
+      div.style.display = "block";
+      return;
+    }
+
+    // Grouper les paiements par année
+    const grouped = {};
+    let dernierNonPaye = null;
+
+    data.forEach(p => {
+      console.log(`Mois ${p.mois}/${p.annee}: Status=${p.Id_status}`); // ✅ Debug
+      
+      const annee = p.annee;
+      if (!grouped[annee]) grouped[annee] = {};
+      
+      // ✅ Vérifier explicitement le statut (ajustez selon votre table status)
+      const estPaye = parseInt(p.Id_status) === 4;
+      
+      grouped[annee][p.mois] = {
+        statut: estPaye,
+        montant: p.montant,
+        mois: p.mois,
+        annee: p.annee,
+        id_status: p.Id_status
+      };
+
+      // ✅ Chercher le premier paiement non payé (par ordre chronologique)
+      if (!estPaye && (
+          !dernierNonPaye ||
+          p.annee < dernierNonPaye.annee ||
+          (p.annee === dernierNonPaye.annee && p.mois < dernierNonPaye.mois)
+        )) {
+        dernierNonPaye = p;
+      }
+    });
+
+    const moisNoms = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", 
+                      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    let html = "";
+
+    // Zone bouton de régularisation
+    if (dernierNonPaye) {
+      html += `
+        <div class="regularization-section">
+          <h4>Régularisation du paiement</h4>
+          <p><strong>Prochain mois à payer :</strong> ${moisNoms[dernierNonPaye.mois - 1]} ${dernierNonPaye.annee}</p>
+          <p><strong>Montant à payer :</strong> ${parseFloat(dernierNonPaye.montant).toLocaleString('fr-FR', {minimumFractionDigits: 2})} Ar</p>
+          <p><strong>Statut actuel :</strong> ${dernierNonPaye.Id_status}</p>
+          <label>Date de paiement :</label>
+          <input type="date" id="dateRemb" />
+          <div class="action-buttons">
+            <button onclick="validerRemboursement(${id_pret}, ${dernierNonPaye.montant}, ${dernierNonPaye.mois}, ${dernierNonPaye.annee})">
+              Valider le paiement
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      html += `<div class="success-message">✅ Tous les paiements sont à jour</div>`;
+    }
+
+    // Création du calendrier par année
+    for (const annee in grouped) {
+      html += `<div class="calendar-month">
+                <h4 class="calendar-header">${annee}</h4>
+                <div class="calendar-grid">`;
+      
+      for (let i = 1; i <= 12; i++) {
+        const dataMois = grouped[annee][i];
+        const nom = moisNoms[i - 1].substring(0, 3);
+        
+        if (dataMois) {
+          const statutClass = dataMois.statut ? "paid" : "unpaid";
+          const symbole = dataMois.statut ? "✓" : "✗";
+          const montant = parseFloat(dataMois.montant).toLocaleString('fr-FR', {minimumFractionDigits: 2});
+          
+          html += `
+            <div class="month-cell">
+              <div class="month-name">${nom}</div>
+              <div class="payment-status ${statutClass}">${symbole}</div>
+              <div class="payment-info">${montant} Ar</div>
+              <div style="font-size: 10px; color: #666;">ID Status: ${dataMois.id_status}</div>
+            </div>`;
+        } else {
+          html += `
+            <div class="month-cell" style="opacity:0.5;">
+              <div class="month-name">${nom}</div>
+              <div class="payment-info">-</div>
+            </div>`;
+        }
+      }
+      
+      html += `</div></div>`;
+    }
+
+    div.innerHTML += html;
+    div.style.display = "block";
+    
+    // Définir la date par défaut pour aujourd'hui
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById("dateRemb");
+    if (dateInput) {
+      dateInput.value = today;
+    }
+  });
+}
+    // Charger les prêts au démarrage
     chargerPrets();
   </script>
 

@@ -5,101 +5,259 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestion des types de prêt</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        max-width: 800px;
-        margin: 50px auto;
-        padding: 20px;
-      }
-      form {
-        background: #f5f5f5;
-        padding: 20px;
-        border-radius: 8px;
-      }
-      label {
-        display: block;
-        margin: 10px 0 5px 0;
-        font-weight: bold;
-      }
-      input, select {
-        width: 100%;
-        padding: 8px;
-        margin-bottom: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }
-      button {
-        background: #007bff;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        width: 100%;
-      }
-      button:hover {
-        background: #0056b3;
-      }
-      .message {
-        margin: 10px 0;
-        padding: 10px;
-        border-radius: 4px;
-        display: none;
-      }
-      .success {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-      }
-      .error {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-      }
-      .checkbox-container {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-      }
-      .checkbox-container input {
-        width: auto;
-        margin-right: 10px;
-      }
+        :root {
+            --primary-color: #1a3a1a; /* Vert foncé */
+            --secondary-color: #000000; /* Noir */
+            --accent-color: hsl(120, 36%, 26%); /* Vert un peu plus clair */
+            --text-color: #e0e0e0; /* Gris clair */
+            --hover-color: #3a7a3a; /* Vert plus vif pour les hover */
+            --light-bg: #f5f5f5; /* Fond clair */
+            --success-color: #dff0d8;
+            --success-text: #3c763d;
+            --error-color: #f2dede;
+            --error-text: #a94442;
+            --border-radius: 8px;
+            --transition-speed: 0.25s;
+            --input-focus-glow: 0 0 0 3px rgba(42, 90, 42, 0.2);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: var(--secondary-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .main-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex-grow: 1;
+            width: 90%;
+        }
+        
+        .form-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            transition: transform var(--transition-speed) ease;
+        }
+        
+        .form-container:hover {
+            transform: translateY(-2px);
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all var(--transition-speed);
+            box-sizing: border-box;
+            background-color: #f9f9f9;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: var(--input-focus-glow);
+            background-color: white;
+        }
+        
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+            transform: scale(1.2);
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.9rem 1.8rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            width: 100%;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        button:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #message {
+            margin: 1.5rem 0;
+            padding: 1.2rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .success {
+            background-color: var(--success-color);
+            color: var(--success-text);
+            border-left: 4px solid var(--success-text);
+        }
+        
+        .error {
+            background-color: var(--error-color);
+            color: var(--error-text);
+            border-left: 4px solid var(--error-text);
+        }
+        
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
+        
+        @media (min-width: 768px) {
+            .form-container {
+                padding: 2.5rem 3rem;
+            }
+            
+            button {
+                width: auto;
+                display: block;
+                margin: 0 auto;
+            }
+            
+            .checkbox-container {
+                margin: 1.5rem 0;
+            }
+        }
     </style>
   </head>
   <body>
-    <h2>Ajouter un type de prêt</h2>
+    <header>
+      <h1>Gestion des types de prêt</h1>
+    </header>
     
-    <div id="message" class="message"></div>
-    
-    <form onsubmit="ajouterTypePret(); return false;">
-      <label for="nom">Nom du type de prêt:</label>
-      <input type="text" id="nom" name="nom" required />
-      
-      <label for="taux_interet_annuel">Taux d'intérêt annuel (%):</label>
-      <input type="number" id="taux_interet_annuel" name="taux_interet_annuel" step="0.01" required />
-      
-      <label for="duree_remboursement_en_mois">Durée de remboursement (mois):</label>
-      <input type="number" id="duree_remboursement_en_mois" name="duree_remboursement_en_mois" />
-      
-      <label for="montant_min">Montant minimum:</label>
-      <input type="number" id="montant_min" name="montant_min" />
-      
-      <label for="montant_max">Montant maximum:</label>
-      <input type="number" id="montant_max" name="montant_max" />
-      
-      <label for="frais">Frais:</label>
-      <input type="number" id="frais" name="frais" required />
-      
-      <div class="checkbox-container">
-        <input type="checkbox" id="remboursement_fixe" name="remboursement_fixe" value="1" />
-        <label for="remboursement_fixe" style="display: inline; font-weight: normal;">Remboursement fixe</label>
+    <div class="main-container">
+      <div class="form-container">
+        <h2>Ajouter un type de prêt</h2>
+        
+        <div id="message" class="message"></div>
+        
+        <form onsubmit="ajouterTypePret(); return false;">
+          <div class="form-group">
+            <label for="nom">Nom du type de prêt:</label>
+            <input type="text" id="nom" name="nom" required />
+          </div>
+          
+          <div class="form-group">
+            <label for="taux_interet_annuel">Taux d'intérêt annuel (%):</label>
+            <input type="number" id="taux_interet_annuel" name="taux_interet_annuel" step="0.01" required />
+          </div>
+          
+          <div class="form-group">
+            <label for="duree_remboursement_en_mois">Durée de remboursement (mois):</label>
+            <input type="number" id="duree_remboursement_en_mois" name="duree_remboursement_en_mois" />
+          </div>
+          
+          <div class="form-group">
+            <label for="montant_min">Montant minimum:</label>
+            <input type="number" id="montant_min" name="montant_min" />
+          </div>
+          
+          <div class="form-group">
+            <label for="montant_max">Montant maximum:</label>
+            <input type="number" id="montant_max" name="montant_max" />
+          </div>
+          
+          <div class="form-group">
+            <label for="frais">Frais:</label>
+            <input type="number" id="frais" name="frais" required />
+          </div>
+          
+          <div class="checkbox-container">
+            <input type="checkbox" id="remboursement_fixe" name="remboursement_fixe" value="1" />
+            <label for="remboursement_fixe" style="font-weight: normal;">Remboursement fixe</label>
+          </div>
+          
+          <button type="submit">Ajouter</button>
+        </form>
       </div>
-      
-      <br />
-      <button type="submit">Ajouter</button>
-    </form>
+    </div>
+
+    <footer>
+      © 2023 Système de gestion de prêts
+    </footer>
 
     <script>
       const apiBase = "http://localhost/finalS4/ws";
@@ -134,47 +292,47 @@
         xhr.send(data);
       }
       
-  function ajouterTypePret() {
-    const nom = document.getElementById("nom").value;
-    const taux_interet_annuel = document.getElementById("taux_interet_annuel").value;
-    const duree_remboursement_en_mois = document.getElementById("duree_remboursement_en_mois").value;
-    const montant_min = document.getElementById("montant_min").value;
-    const montant_max = document.getElementById("montant_max").value;
-    const frais = document.getElementById("frais").value;
-    const remboursement_fixe = document.getElementById("remboursement_fixe").checked ? 1 : 0;
+      function ajouterTypePret() {
+        const nom = document.getElementById("nom").value;
+        const taux_interet_annuel = document.getElementById("taux_interet_annuel").value;
+        const duree_remboursement_en_mois = document.getElementById("duree_remboursement_en_mois").value;
+        const montant_min = document.getElementById("montant_min").value;
+        const montant_max = document.getElementById("montant_max").value;
+        const frais = document.getElementById("frais").value;
+        const remboursement_fixe = document.getElementById("remboursement_fixe").checked ? 1 : 0;
 
-    const data = new URLSearchParams();
-    data.append('nom', nom);
-    data.append('taux_interet_annuel', taux_interet_annuel);
-    data.append('duree_remboursement_en_mois', duree_remboursement_en_mois);
-    data.append('montant_min', montant_min);
-    data.append('montant_max', montant_max);
-    data.append('frais', frais);
-    data.append('remboursement_fixe', remboursement_fixe);
+        const data = new URLSearchParams();
+        data.append('nom', nom);
+        data.append('taux_interet_annuel', taux_interet_annuel);
+        data.append('duree_remboursement_en_mois', duree_remboursement_en_mois);
+        data.append('montant_min', montant_min);
+        data.append('montant_max', montant_max);
+        data.append('frais', frais);
+        data.append('remboursement_fixe', remboursement_fixe);
 
-    const submitBtn = document.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Envoi en cours...";
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Envoi en cours...";
 
-    ajax("POST", "/create_type_pret", data.toString(), 
-        (response) => {
-            if (response.success) {
-                showMessage(response.message, "success");
-                resetForm();
-            } else {
-                showMessage(response.error || "Erreur inconnue", "error");
+        ajax("POST", "/create_type_pret", data.toString(), 
+            (response) => {
+                if (response.success) {
+                    showMessage(response.message, "success");
+                    resetForm();
+                } else {
+                    showMessage(response.error || "Erreur inconnue", "error");
+                }
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Ajouter";
+            },
+            (error) => {
+                showMessage("Erreur: " + error, "error");
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Ajouter";
+                console.error("Erreur AJAX:", error);
             }
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Ajouter";
-        },
-        (error) => {
-            showMessage("Erreur: " + error, "error");
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Ajouter";
-            console.error("Erreur AJAX:", error);
-        }
-    );
-}
+        );
+      }
       
       function showMessage(text, type) {
         const messageDiv = document.getElementById("message");
