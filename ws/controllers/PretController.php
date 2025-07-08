@@ -61,7 +61,9 @@ class PretController {
                 'Id_usage' => $request->id_usage,
                 'Id_type_pret' => $request->id_type_pret,
                 'Id_client' => $request->id_client,
-                'Id_type_assurance' => $idAssurance  // CORRECTION: Nom cohérent
+                'Id_type_assurance' => $idAssurance,
+                'delai' => $request->delai,  // CORRECTION: Nom cohérent
+                  // CORRECTION: Nom cohérent
             ];
 
             $idPret = PretModel::createPret($data);
@@ -88,6 +90,15 @@ class PretController {
             
             $montantMensuelBase = $montantTotalARembourser / $totalMonths;
 
+            $data = [
+                'montant_' => $montantMensuelBase,
+                'date_' => $request->date_debut
+            ];
+            $resultss = PretModel::createmouvement($data);
+            if (!$resultss) {
+                Flight::json(['message' => 'Erreur lors de la création du mouvement'], 500);
+                return;
+            }
             // Création des échéances
             $current = clone $dateDebut;
             for ($i = 0; $i < $totalMonths; $i++) {

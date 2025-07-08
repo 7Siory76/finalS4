@@ -31,7 +31,6 @@ JOIN type_pret tp ON p.Id_type_pret = tp.Id_type_pret
 JOIN usages u ON p.Id_usage = u.Id_usage
 JOIN type_remboursement_ tr ON p.Id_type_remboursement_ = tr.Id_type_remboursement_;
 
-
 CREATE VIEW vue_usage_type_pret_client AS
 SELECT 
     u.Id_usage,
@@ -52,7 +51,11 @@ SELECT
     ta.Id_type_assurance,
     ta.taux_assurance,
     ta.nom AS type_assurance_nom,
-    (SELECT mf.montant_ FROM mouvement_fond mf ORDER BY mf.Id_mouvement_fond DESC LIMIT 1) AS dernier_montant_fond
+    (
+        SELECT COALESCE(SUM(CASE WHEN mf.type_mouvement = 1 THEN mf.montant_ ELSE 0 END), 0) - 
+               COALESCE(SUM(CASE WHEN mf.type_mouvement = 0 THEN mf.montant_ ELSE 0 END), 0)
+        FROM mouvement_fond mf
+    ) AS dernier_montant_fond
 FROM 
     usages u
 JOIN 
@@ -62,4 +65,4 @@ JOIN
 JOIN 
     type_remboursement_ tr ON 1=1  
 JOIN
-    type_assurance ta ON 1=1;       
+    type_assurance ta ON 1=1;

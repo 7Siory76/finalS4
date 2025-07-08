@@ -137,5 +137,6 @@ CREATE TABLE type_assurance(
     PRIMARY KEY(Id_type_assurance)
 );
 
+alter table pret add column delai INT DEFAULT 0;
 SET FOREIGN_KEY_CHECKS = 1;
 

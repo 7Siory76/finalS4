@@ -120,6 +120,10 @@
                         <option value="">Chargement...</option>
                     </select>
                 </div>
+                  <div class="form-group">
+                    <label for="delai">Delai du premier remboursement :</label>
+                    <input type="number" id="delai" name="delai" required min="0" step="0.01">
+                </div>
                 
                 <input type="hidden" id="montant_total_rembourser" name="montant_total_rembourser">
                 <div id="messages"></div>
@@ -340,7 +344,49 @@
             document.getElementById("simulation-details").innerHTML = details;
         }
     }
-
+    function calculerDatesParDelai() {
+    const delaiMois = parseInt(document.getElementById("delai").value) || 0;
+    const dateActuelle = new Date();
+    
+    if (delaiMois > 0) {
+        // Convertir la valeur du champ date_debut en objet Date
+        const dateDebutStr = document.getElementById("date_debut").value;
+        const dateDebut = new Date(dateDebutStr);
+        
+        // Vérifier que la date est valide
+        if (isNaN(dateDebut.getTime())) {
+            console.error("Date de début invalide");
+            return;
+        }
+        
+        // Créer une copie pour dateFin avant modification
+        const dateFin = new Date(dateDebut);
+        
+        // Modifier les dates
+        dateDebut.setMonth(dateDebut.getMonth() + delaiMois);
+        dateFin.setMonth(dateFin.getMonth() + delaiMois * 2); // Si vous voulez ajouter delaiMois à partir de la nouvelle dateDebut
+        
+        // Formater les dates au format YYYY-MM-DD pour les champs input[type=date]
+        const formatDate = (date) => {
+            return date.toISOString().split('T')[0];
+        };
+        
+        // Mettre à jour les champs de date
+        document.getElementById("date_debut").value = formatDate(dateDebut);
+        document.getElementById("date_fin").value = formatDate(dateFin);
+    } else {
+        // Si délai = 0, réinitialiser aux dates actuelles
+        document.getElementById("date_debut").value = dateActuelle.toISOString().split('T')[0];
+        document.getElementById("date_fin").value = new Date(
+            dateActuelle.getFullYear(),
+            dateActuelle.getMonth() + 12,
+            dateActuelle.getDate()
+        ).toISOString().split('T')[0];
+    }
+    
+    // Recalculer la durée totale
+    calculerDuree();
+}
     function simulerPret() {
         // Récupérer les valeurs du formulaire
         const montant = parseFloat(document.getElementById("montant_total").value);
@@ -349,7 +395,7 @@
         const assuranceId = document.getElementById("id_assurance").value;
         const dateDebut = document.getElementById("date_debut").value;
         const dateFin = document.getElementById("date_fin").value;
-        
+        const delai = document.getElementById("delai").value;
         // Validation corrigée
         if (!montant || !typePretId || !clientId || !dateDebut || !dateFin || !assuranceId) {
             showMessage("Veuillez remplir tous les champs du formulaire", "error");
@@ -454,70 +500,87 @@
         document.getElementById("simulation-details").innerHTML = simulationHTML;
         showMessage("Simulation terminée avec succès", "success");
     }
-
     function ajouterUnpret() {
-        if (!verifierFondDisponible()) {
+    if (!verifierFondDisponible()) {
         showMessage("Impossible d'enregistrer - fonds insuffisants", "error");
         return;
     }
-        // Validation simple côté client
-        const dateDebut = document.getElementById("date_debut").value;
-        const dateFin = document.getElementById("date_fin").value;
-        const montantTotal = document.getElementById("montant_total").value;
-        const idClient = document.getElementById("id_client").value;
-        const idTypePret = document.getElementById("id_type_pret").value;
-        const idUsage = document.getElementById("id_usage").value;
-        const idAssurance = document.getElementById("id_assurance").value;
-        const montantTotalRembourser = document.getElementById("montant_total_rembourser").value;
+    
+    // Récupérer les valeurs originales
+    let dateDebut = document.getElementById("date_debut").value;
+    let dateFin = document.getElementById("date_fin").value;
+    const montantTotal = document.getElementById("montant_total").value;
+    const idClient = document.getElementById("id_client").value;
+    const idTypePret = document.getElementById("id_type_pret").value;
+    const idUsage = document.getElementById("id_usage").value;
+    const idAssurance = document.getElementById("id_assurance").value;
+    const montantTotalRembourser = document.getElementById("montant_total_rembourser").value;
+    const delai = parseInt(document.getElementById("delai").value) || 0;
 
-        if (!dateDebut || !dateFin || !montantTotal || !idClient || !idTypePret || !idUsage || !idAssurance) {
-            showMessage("Veuillez remplir tous les champs et simuler le prêt avant d'enregistrer !", "error");
-            return;
-        }
-
-        if (!montantTotalRembourser) {
-            showMessage("Veuillez d'abord simuler le prêt avant de l'enregistrer !", "error");
-            return;
-        }console.log("Valeurs du formulaire:");
-    console.log("- dateDebut:", dateDebut);
-    console.log("- dateFin:", dateFin);
-    console.log("- montantTotal:", montantTotal);
-    console.log("- idClient:", idClient);
-    console.log("- idTypePret:", idTypePret);
-    console.log("- idUsage:", idUsage);
-    console.log("- idAssurance:", idAssurance);
-    console.log("- montantTotalRembourser:", montantTotalRembourser);
-
-
-        // Construire la chaîne de données au format URL-encodé
-        const dataToSend = `date_debut=${encodeURIComponent(dateDebut)}` +
-                           `&date_fin=${encodeURIComponent(dateFin)}` +
-                           `&montant_total=${encodeURIComponent(montantTotal)}` +
-                           `&montant_total_rembourser=${encodeURIComponent(montantTotalRembourser)}` +
-                           `&id_client=${encodeURIComponent(idClient)}` +
-                           `&id_type_pret=${encodeURIComponent(idTypePret)}` +
-                           `&id_usage=${encodeURIComponent(idUsage)}` +
-                           `&id_assurance=${encodeURIComponent(idAssurance)}`; // Utiliser le nom au lieu de l'ID
-
-        showMessage("Enregistrement en cours...", "info");
-
-        // Envoyer les données au serveur
-        ajax("POST", "/pret", dataToSend, (response) => {
-            console.log("Réponse du serveur:", response);
-            if (response && response.message && response.message.includes('succès')) {
-                showMessage("Prêt enregistré avec succès!", "success");
-                // Réinitialiser le formulaire
-                document.getElementById('loanForm').reset();
-                document.getElementById("simulation-details").innerHTML = '<p>Veuillez remplir le formulaire et cliquer sur "Simuler le prêt"</p>';
-            } else {
-                showMessage("Erreur lors de l'enregistrement: " + (response.message || "Erreur inconnue"), "error");
-            }
-        }, (error) => {
-            showMessage(`Erreur lors de l'enregistrement: ${error}`, "error");
-        });
+    // Validation des champs obligatoires
+    if (!dateDebut || !dateFin || !montantTotal || !idClient || !idTypePret || !idUsage || !idAssurance) {
+        showMessage("Veuillez remplir tous les champs et simuler le prêt avant d'enregistrer !", "error");
+        return;
     }
 
-    // Charger les données au chargement de la page
+    if (!montantTotalRembourser) {
+        showMessage("Veuillez d'abord simuler le prêt avant de l'enregistrer !", "error");
+        return;
+    }
+
+    // Appliquer le délai si nécessaire
+    if (delai > 0) {
+        // Convertir les dates en objets Date
+        let dateDebutObj = new Date(dateDebut);
+        let dateFinObj = new Date(dateFin);
+        
+        // Vérifier que les dates sont valides
+        if (isNaN(dateDebutObj.getTime()) || isNaN(dateFinObj.getTime())) {
+            showMessage("Dates invalides", "error");
+            return;
+        }
+        
+        const dureeMois = calculerDuree();
+        
+        dateDebutObj.setMonth(dateDebutObj.getMonth() + delai);
+        dateFinObj.setMonth(dateFinObj.getMonth() + delai);
+        
+        const formatDate = (date) => date.toISOString().split('T')[0];
+        dateDebut = formatDate(dateDebutObj);
+        dateFin = formatDate(dateFinObj);
+    }
+
+    console.log("Valeurs du formulaire après application du délai:");
+    console.log("- dateDebut:", dateDebut);
+    console.log("- dateFin:", dateFin);
+    console.log("- delai:", delai);
+
+    const dataToSend = `date_debut=${encodeURIComponent(dateDebut)}` +
+                       `&date_fin=${encodeURIComponent(dateFin)}` +
+                       `&montant_total=${encodeURIComponent(montantTotal)}` +
+                       `&montant_total_rembourser=${encodeURIComponent(montantTotalRembourser)}` +
+                       `&id_client=${encodeURIComponent(idClient)}` +
+                       `&id_type_pret=${encodeURIComponent(idTypePret)}` +
+                       `&id_usage=${encodeURIComponent(idUsage)}` +
+                       `&id_assurance=${encodeURIComponent(idAssurance)}` +
+                       `&delai=${encodeURIComponent(delai)}`;
+
+    showMessage("Enregistrement en cours...", "info");
+
+    ajax("POST", "/pret", dataToSend, (response) => {
+        console.log("Réponse du serveur:", response);
+        if (response && response.message && response.message.includes('succès')) {
+            showMessage("Prêt enregistré avec succès!", "success");
+            // Réinitialiser le formulaire
+            document.getElementById('loanForm').reset();
+            document.getElementById("simulation-details").innerHTML = '<p>Veuillez remplir le formulaire et cliquer sur "Simuler le prêt"</p>';
+        } else {
+            showMessage("Erreur lors de l'enregistrement: " + (response.message || "Erreur inconnue"), "error");
+        }
+    }, (error) => {
+        showMessage(`Erreur lors de l'enregistrement: ${error}`, "error");
+    });
+}    // Charger les données au chargement de la page
     window.onload = chargerDonnees;
     </script>
 </body>

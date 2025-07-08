@@ -33,8 +33,8 @@ class PretModel {
             // Insérer le prêt
             $stmt = $db->prepare("INSERT INTO pret 
                      (date_debut, date_fin, montant_total, Id_type_remboursement_, 
-                      Id_usage, Id_type_pret, Id_client,Id_type_assurance) 
-                     VALUES (?, ?, ?, 1, ?, ?, ?, ?)");
+                      Id_usage, Id_type_pret, Id_client,Id_type_assurance,delai) 
+                     VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?)");
 
 $result = $stmt->execute([
     $data['date_debut'],           
@@ -43,7 +43,9 @@ $result = $stmt->execute([
     $data['Id_usage'],             
     $data['Id_type_pret'],         
     $data['Id_client'],            
-    $data['Id_type_assurance']     
+    $data['Id_type_assurance'],     
+    $data['delai']     
+
 ]);
             
             if (!$result) {
@@ -109,5 +111,25 @@ $result = $stmt->execute([
         $db = getDB();
         $stmt = $db->query("SELECT MAX(Id_pret) FROM pret");
         return $stmt->fetchColumn();
+    }
+
+    public static function createmouvement($data) {
+        try {
+            $db = getDB();
+            
+            $stmt = $db->prepare("INSERT INTO mouvement_fond (montant_, date_, description, type_mouvement) 
+                                 VALUES (?, ?, 'manala vola', 0)");
+            
+            $result = $stmt->execute([
+                $data['montant_'],
+                $data['date_']
+            ]);
+            
+            return $db->lastInsertId();
+            
+        } catch (PDOException $e) {
+            error_log("Erreur PDO dans createMontantAPayer: " . $e->getMessage());
+            return false;
+        }
     }
 }
