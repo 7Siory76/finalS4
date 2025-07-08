@@ -90,7 +90,7 @@
 
                 <div class="form-group">
                     <label for="montant_total">Montant total :</label>
-                    <input type="number" id="montant_total" name="montant_total" value="20000" required min="0" step="0.01">
+                    <input type="number" id="montant_total" name="montant_total" required min="0" step="0.01">
                 </div>
 
                 <div class="form-group">
@@ -180,36 +180,35 @@
         
         xhr.send(data);
     }
-//     function verifierFondDisponible() {
-//     const montant = parseFloat(document.getElementById("montant_total").value);
-//     const fundInfo = document.getElementById("fund-info");
-//     const btnEnregistrer = document.querySelector("button[onclick='ajouterUnpret()']");
-    
-//     if (montant && fondDisponible > 0) {
-//         if (montant > fondDisponible) {
-//             fundInfo.className = "fund-info insufficient-fund";
-//             fundInfo.innerHTML = `
-//                 <h4>❌ Fond insuffisant</h4>
-//                 <p>Montant demandé: <strong>${montant.toFixed(2)} €</strong></p>
-//                 <p>Fond disponible: <strong>${fondDisponible.toFixed(2)} €</strong></p>
-//             `;
-//             btnEnregistrer.disabled = true;
-//             showMessage("Fond insuffisant pour ce montant de prêt", "error");
-//             return false;
-//         } else {
-//             fundInfo.className = "fund-info";
-//             fundInfo.innerHTML = `
-//                 <h4>💰 Fond disponible</h4>
-//                 <p>Montant demandé: <strong>${montant.toFixed(2)} €</strong></p>
-//                 <p>Fond disponible: <strong>${fondDisponible.toFixed(2)} €</strong></p>
-//                 <p class="success">Reste après prêt: ${(fondDisponible - montant).toFixed(2)} €</p>
-//             `;
-//             btnEnregistrer.disabled = false;
-//             return true;
-//         }
-//     }
-//     return false;
-// }
+        function verifierFondDisponible() {
+        const montant = parseFloat(document.getElementById("montant_total").value);
+        const fundInfo = document.getElementById("fund-info");
+        const btnEnregistrer = document.querySelector("button[onclick='ajouterUnpret()']")   
+        if (montant && fondDisponible > 0) {
+            if (montant > fondDisponible) {
+                fundInfo.className = "fund-info insufficient-fund";
+                fundInfo.innerHTML = `
+                    <h4>❌ Fond insuffisant</h4>
+                    <p>Montant demandé: <strong>${montant.toFixed(2)} €</strong></p>
+                    <p>Fond disponible: <strong>${fondDisponible.toFixed(2)} €</strong></p>
+                `;
+                btnEnregistrer.disabled = true;
+                showMessage("Fond insuffisant pour ce montant de prêt", "error");
+                return false;
+            } else {
+                fundInfo.className = "fund-info";
+                fundInfo.innerHTML = `
+                    <h4>💰 Fond disponible</h4>
+                    <p>Montant demandé: <strong>${montant.toFixed(2)} €</strong></p>
+                    <p>Fond disponible: <strong>${fondDisponible.toFixed(2)} €</strong></p>
+                    <p class="success">Reste après prêt: ${(fondDisponible - montant).toFixed(2)} €</p>
+                `;
+                btnEnregistrer.disabled = false;
+                return true;
+            }
+        }
+        return false;
+    }
     function chargerDonnees() {
         showMessage("Chargement des données...", "info");
         
@@ -222,15 +221,15 @@
             
             allPretData = data; // Stocker les données pour les utiliser ailleurs
             
-            // if (data.length > 0 && data[0].dernier_montant_fond !== null) {
-            //     fondDisponible = parseFloat(data[0].dernier_montant_fond);
-            //     document.getElementById("fund-amount").textContent = `${fondDisponible.toFixed(2)} €`;
-            // } else {
-            //     fondDisponible = 0;
-            //     document.getElementById("fund-amount").textContent = "Aucun fond disponible";
-            // }
+            if (data.length > 0 && data[0].dernier_montant_fond !== null) {
+                fondDisponible = parseFloat(data[0].dernier_montant_fond);
+                document.getElementById("fund-amount").textContent = `${fondDisponible.toFixed(2)} €`;
+            } else {
+                fondDisponible = 0;
+                document.getElementById("fund-amount").textContent = "Aucun fond disponible";
+            }
 
-            // verifierFondDisponible();
+             verifierFondDisponible();
 
             // Remplir les clients (en éliminant les doublons)
             const clients = {};
@@ -457,10 +456,10 @@
     }
 
     function ajouterUnpret() {
-    //     if (!verifierFondDisponible()) {
-    //     showMessage("Impossible d'enregistrer - fonds insuffisants", "error");
-    //     return;
-    // }
+        if (!verifierFondDisponible()) {
+        showMessage("Impossible d'enregistrer - fonds insuffisants", "error");
+        return;
+    }
         // Validation simple côté client
         const dateDebut = document.getElementById("date_debut").value;
         const dateFin = document.getElementById("date_fin").value;

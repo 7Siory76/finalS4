@@ -34,3 +34,7 @@ VALUES
 ('credit', 5.5),
 ('milay', 6.5);
 
+
+INSERT INTO type_assurance (nom, taux_assurance)
+VALUES 
+('mialalao', 0);
