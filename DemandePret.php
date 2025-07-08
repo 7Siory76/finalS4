@@ -180,33 +180,36 @@
         
         xhr.send(data);
     }
-    // function verifierFondDisponible() {
-    //     const montant = parseFloat(document.getElementById("montant_total").value);
-    //     const fundInfo = document.getElementById("fund-info");
-    //     const btnEnregistrer = document.getElementById("btn-enregistrer");
-        
-    //     if (montant && fondDisponible > 0) {
-    //         if (montant > fondDisponible) {
-    //             fundInfo.className = "fund-info insufficient-fund";
-    //             fundInfo.innerHTML = `
-    //                 <h4> Fond insuffisant</h4>
-    //                 <p>Montant demandé: <strong>${montant.toFixed(2)} €</strong></p>
-    //                 <p>Fond disponible: <strong>${fondDisponible.toFixed(2)} €</strong></p>
-    //             `;
-    //             btnEnregistrer.disabled = true;
-    //             showMessage("Fond insuffisant pour ce montant de prêt", "error");
-    //         } else {
-    //             fundInfo.className = "fund-info";
-    //             fundInfo.innerHTML = `
-    //                 <h4>💰 Fond disponible</h4>
-    //                 <p>Montant demandé: <strong>${montant.toFixed(2)} €</strong></p>
-    //                 <p>Fond disponible: <strong>${fondDisponible.toFixed(2)} €</strong></p>
-    //                 <p class="success">Reste après prêt: ${(fondDisponible - montant).toFixed(2)} €</p>
-    //             `;
-    //             btnEnregistrer.disabled = false;
-    //         }
-    //     }
-    // }
+//     function verifierFondDisponible() {
+//     const montant = parseFloat(document.getElementById("montant_total").value);
+//     const fundInfo = document.getElementById("fund-info");
+//     const btnEnregistrer = document.querySelector("button[onclick='ajouterUnpret()']");
+    
+//     if (montant && fondDisponible > 0) {
+//         if (montant > fondDisponible) {
+//             fundInfo.className = "fund-info insufficient-fund";
+//             fundInfo.innerHTML = `
+//                 <h4>❌ Fond insuffisant</h4>
+//                 <p>Montant demandé: <strong>${montant.toFixed(2)} €</strong></p>
+//                 <p>Fond disponible: <strong>${fondDisponible.toFixed(2)} €</strong></p>
+//             `;
+//             btnEnregistrer.disabled = true;
+//             showMessage("Fond insuffisant pour ce montant de prêt", "error");
+//             return false;
+//         } else {
+//             fundInfo.className = "fund-info";
+//             fundInfo.innerHTML = `
+//                 <h4>💰 Fond disponible</h4>
+//                 <p>Montant demandé: <strong>${montant.toFixed(2)} €</strong></p>
+//                 <p>Fond disponible: <strong>${fondDisponible.toFixed(2)} €</strong></p>
+//                 <p class="success">Reste après prêt: ${(fondDisponible - montant).toFixed(2)} €</p>
+//             `;
+//             btnEnregistrer.disabled = false;
+//             return true;
+//         }
+//     }
+//     return false;
+// }
     function chargerDonnees() {
         showMessage("Chargement des données...", "info");
         
@@ -227,7 +230,7 @@
             //     document.getElementById("fund-amount").textContent = "Aucun fond disponible";
             // }
 
-            //verifierFondDisponible();
+            // verifierFondDisponible();
 
             // Remplir les clients (en éliminant les doublons)
             const clients = {};
@@ -320,9 +323,9 @@
             // if (montant && montant < typePret.montant_min) {
             //     alertMessage = `<p class="error">⚠️ Montant trop faible (min: ${typePret.montant_min})</p>`;
             // }
-            if (montant && montant > typePret.montant_max) {
-                alertMessage = `<p class="error">⚠️ Montant trop élevé (max: ${typePret.montant_max})</p>`;
-            }
+            // if (montant && montant > typePret.montant_max) {
+            //     alertMessage = `<p class="error">⚠️ Montant trop élevé (max: ${typePret.montant_max})</p>`;
+            // }
             
             const details = `
                 <h4>Détails du type de prêt</h4>
@@ -381,17 +384,17 @@
             return;
         }
         
-        // Validation des montants
-        if (montant < typePret.montant_min || montant > typePret.montant_max) {
-            showMessage(`Le montant doit être entre ${typePret.montant_min} et ${typePret.montant_max}`, "error");
-            return;
-        }
+        // // Validation des montants
+        // if (montant < typePret.montant_min || montant > typePret.montant_max) {
+        //     showMessage(`Le montant doit être entre ${typePret.montant_min} et ${typePret.montant_max}`, "error");
+        //     return;
+        // }
         
-        // Validation de la durée
-        if (dureeMois > typePret.duree_remboursement_en_mois) {
-            showMessage(`La durée ne peut pas dépasser ${typePret.duree_remboursement_en_mois} mois`, "error");
-            return;
-        }
+        // // Validation de la durée
+        // if (dureeMois > typePret.duree_remboursement_en_mois) {
+        //     showMessage(`La durée ne peut pas dépasser ${typePret.duree_remboursement_en_mois} mois`, "error");
+        //     return;
+        // }
         
         // Calculs de simulation
         const tauxMensuel = typePret.taux_interet_annuel / 12 / 100;
@@ -454,6 +457,10 @@
     }
 
     function ajouterUnpret() {
+    //     if (!verifierFondDisponible()) {
+    //     showMessage("Impossible d'enregistrer - fonds insuffisants", "error");
+    //     return;
+    // }
         // Validation simple côté client
         const dateDebut = document.getElementById("date_debut").value;
         const dateFin = document.getElementById("date_fin").value;
