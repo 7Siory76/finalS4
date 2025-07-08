@@ -40,3 +40,5 @@ VALUES
 INSERT INTO type_assurance (nom, taux_assurance)
 VALUES 
 ('mialalao', 0);
+
+

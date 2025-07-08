@@ -12,6 +12,7 @@
             --light-bg: #f5f5f5; /* Fond clair */
             --hover-color: #3a7a3a; /* Vert plus vif pour les hover */
             --error-color: #f44336;
+            --success-color: #4caf50;
             --border-radius: 8px;
             --transition-speed: 0.3s;
             --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -38,7 +39,52 @@
             margin-top: 0;
         }
         
-        #tauxForm {
+        /* Onglets */
+        .tabs {
+            display: flex;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 1rem 2rem;
+            background-color: #f9f9f9;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            transition: all var(--transition-speed);
+            border-radius: var(--border-radius);
+            margin: 0.5rem;
+        }
+        
+        .tab:hover {
+            background-color: var(--hover-color);
+            color: white;
+        }
+        
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* Contenus des onglets */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-container {
             background-color: white;
             padding: 2rem;
             border-radius: var(--border-radius);
@@ -112,7 +158,13 @@
             padding: 0.5rem 0;
         }
         
-        #resultats {
+        .success {
+            color: var(--success-color);
+            font-weight: 500;
+            padding: 0.5rem 0;
+        }
+        
+        .resultats {
             max-width: 1200px;
             margin: 0 auto;
         }
@@ -126,6 +178,15 @@
         
         .table-container {
             flex: 1;
+            min-width: 300px;
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .chart-container {
+            flex: 2;
             min-width: 300px;
             background-color: white;
             padding: 1.5rem;
@@ -159,21 +220,55 @@
             background-color: #f1f1f1;
         }
         
-        .chart-container {
-            flex: 2;
-            min-width: 300px;
+        /* Cartes de résumé */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
             background-color: white;
             padding: 1.5rem;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
+            text-align: center;
+            transition: transform var(--transition-speed);
         }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .summary-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .summary-card .amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-card .label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .entrees { border-left: 4px solid var(--success-color); }
+        .sorties { border-left: 4px solid var(--error-color); }
+        .solde { border-left: 4px solid var(--primary-color); }
         
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
             }
             
-            #tauxForm {
+            .form-container {
                 padding: 1.5rem;
             }
             
@@ -184,75 +279,159 @@
             .table-container, .chart-container {
                 width: 100%;
             }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                margin: 0.25rem;
+            }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Consultation des taux de prêt gagnés</h1>
+    <h1>Gestion des prêts</h1>
     
-    <form id="tauxForm">
-        <div class="form-group">
-            <label for="moisDebut">Mois début:</label>
-            <select id="moisDebut" name="moisDebut" required>
-                <option value="">-- Sélectionnez --</option>
-                <option value="01">Janvier</option>
-                <option value="02">Février</option>
-                <option value="03">Mars</option>
-                <option value="04">Avril</option>
-                <option value="05">Mai</option>
-                <option value="06">Juin</option>
-                <option value="07">Juillet</option>
-                <option value="08">Août</option>
-                <option value="09">Septembre</option>
-                <option value="10">Octobre</option>
-                <option value="11">Novembre</option>
-                <option value="12">Décembre</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="anneeDebut">Année début:</label>
-            <select id="anneeDebut" name="anneeDebut" required>
-                <option value="">-- Sélectionnez --</option>
-                <!-- Les options seront générées par JavaScript -->
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="moisFin">Mois fin:</label>
-            <select id="moisFin" name="moisFin" required>
-                <option value="">-- Sélectionnez --</option>
-                <option value="01">Janvier</option>
-                <option value="02">Février</option>
-                <option value="03">Mars</option>
-                <option value="04">Avril</option>
-                <option value="05">Mai</option>
-                <option value="06">Juin</option>
-                <option value="07">Juillet</option>
-                <option value="08">Août</option>
-                <option value="09">Septembre</option>
-                <option value="10">Octobre</option>
-                <option value="11">Novembre</option>
-                <option value="12">Décembre</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="anneeFin">Année fin:</label>
-            <select id="anneeFin" name="anneeFin" required>
-                <option value="">-- Sélectionnez --</option>
-            </select>
-        </div>
-        
-        <button type="submit">Rechercher</button>
-    </form>
+    <!-- Onglets -->
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('taux')">Taux de prêt</button>
+        <button class="tab" onclick="showTab('montants')">Montants restants</button>
+    </div>
     
-    <div id="resultats"></div>
+    <!-- Onglet Taux -->
+    <div id="taux" class="tab-content active">
+        <div class="form-container">
+            <h2>Consultation des taux de prêt gagnés</h2>
+            <form id="tauxForm">
+                <div class="form-group">
+                    <label for="moisDebut">Mois début:</label>
+                    <select id="moisDebut" name="moisDebut" required>
+                        <option value="">-- Sélectionnez --</option>
+                        <option value="01">Janvier</option>
+                        <option value="02">Février</option>
+                        <option value="03">Mars</option>
+                        <option value="04">Avril</option>
+                        <option value="05">Mai</option>
+                        <option value="06">Juin</option>
+                        <option value="07">Juillet</option>
+                        <option value="08">Août</option>
+                        <option value="09">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="anneeDebut">Année début:</label>
+                    <select id="anneeDebut" name="anneeDebut" required>
+                        <option value="">-- Sélectionnez --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="moisFin">Mois fin:</label>
+                    <select id="moisFin" name="moisFin" required>
+                        <option value="">-- Sélectionnez --</option>
+                        <option value="01">Janvier</option>
+                        <option value="02">Février</option>
+                        <option value="03">Mars</option>
+                        <option value="04">Avril</option>
+                        <option value="05">Mai</option>
+                        <option value="06">Juin</option>
+                        <option value="07">Juillet</option>
+                        <option value="08">Août</option>
+                        <option value="09">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="anneeFin">Année fin:</label>
+                    <select id="anneeFin" name="anneeFin" required>
+                        <option value="">-- Sélectionnez --</option>
+                    </select>
+                </div>
+                
+                <button type="submit">Rechercher</button>
+            </form>
+        </div>
+        
+        <div id="resultats-taux" class="resultats"></div>
+    </div>
+    
+    <!-- Onglet Montants -->
+    <div id="montants" class="tab-content">
+        <div class="form-container">
+            <h2>Consultation des montants restants</h2>
+            <form id="montantsForm">
+                <div class="form-group">
+                    <label for="moisDebut2">Mois début:</label>
+                    <select id="moisDebut2" name="moisDebut" required>
+                        <option value="">-- Sélectionnez --</option>
+                        <option value="01">Janvier</option>
+                        <option value="02">Février</option>
+                        <option value="03">Mars</option>
+                        <option value="04">Avril</option>
+                        <option value="05">Mai</option>
+                        <option value="06">Juin</option>
+                        <option value="07">Juillet</option>
+                        <option value="08">Août</option>
+                        <option value="09">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="anneeDebut2">Année début:</label>
+                    <select id="anneeDebut2" name="anneeDebut" required>
+                        <option value="">-- Sélectionnez --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="moisFin2">Mois fin:</label>
+                    <select id="moisFin2" name="moisFin" required>
+                        <option value="">-- Sélectionnez --</option>
+                        <option value="01">Janvier</option>
+                        <option value="02">Février</option>
+                        <option value="03">Mars</option>
+                        <option value="04">Avril</option>
+                        <option value="05">Mai</option>
+                        <option value="06">Juin</option>
+                        <option value="07">Juillet</option>
+                        <option value="08">Août</option>
+                        <option value="09">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="anneeFin2">Année fin:</label>
+                    <select id="anneeFin2" name="anneeFin" required>
+                        <option value="">-- Sélectionnez --</option>
+                    </select>
+                </div>
+                
+                <button type="submit">Rechercher</button>
+            </form>
+        </div>
+        
+        <div id="resultats-montants" class="resultats"></div>
+    </div>
 
     <script>
         const apiBase = 'http://localhost/finalS4/ws'; 
-        let chartInstance = null; // Pour stocker l'instance du graphique
+        let chartInstance = null;
+        let montantsChartInstance = null;
         
         function ajax(method, url, data, callback) {
             const xhr = new XMLHttpRequest();
@@ -278,22 +457,45 @@
             xhr.send(data);
         }
 
+        function showTab(tabName) {
+            // Masquer tous les contenus
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Désactiver tous les onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activer l'onglet sélectionné
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const currentYear = new Date().getFullYear();
-            const anneeDebutSelect = document.getElementById('anneeDebut');
-            const anneeFinSelect = document.getElementById('anneeFin');
+            const yearSelects = ['anneeDebut', 'anneeFin', 'anneeDebut2', 'anneeFin2'];
             
-            for (let y = currentYear - 10; y <= currentYear + 10; y++) {
-                const option = document.createElement('option');
-                option.value = y;
-                option.textContent = y;
-                anneeDebutSelect.appendChild(option.cloneNode(true));
-                anneeFinSelect.appendChild(option);
-            }
+            yearSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                for (let y = currentYear - 10; y <= currentYear + 10; y++) {
+                    const option = document.createElement('option');
+                    option.value = y;
+                    option.textContent = y;
+                    select.appendChild(option);
+                }
+            });
             
+            // Événements des formulaires
             document.getElementById('tauxForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 getTaux();
+            });
+            
+            document.getElementById('montantsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                getMontants();
             });
         });
         
@@ -304,16 +506,13 @@
             const anneeFin = document.getElementById('anneeFin').value;
             
             if (!moisDebut || !anneeDebut || !moisFin || !anneeFin) {
-                document.getElementById('resultats').innerHTML = 
+                document.getElementById('resultats-taux').innerHTML = 
                     '<p class="error">Veuillez remplir tous les champs</p>';
                 return;
             }
             
-            const dateDebut = new Date(`${anneeDebut}-${moisDebut}-01`);
-            const dateFin = new Date(`${anneeFin}-${moisFin}-01`);
-            
-            if (dateFin < dateDebut) {
-                document.getElementById('resultats').innerHTML = 
+            if (!validateDateRange(moisDebut, anneeDebut, moisFin, anneeFin)) {
+                document.getElementById('resultats-taux').innerHTML = 
                     '<p class="error">La date de fin doit être postérieure ou égale à la date de début</p>';
                 return;
             }
@@ -324,63 +523,139 @@
                          `&anneeFin=${encodeURIComponent(anneeFin)}`;
             
             ajax('GET', '/pret/taux?' + data, null, function(response) {
-                const resultDiv = document.getElementById('resultats');
-                
-                if (response.error) {
-                    resultDiv.innerHTML = `<p class="error">${response.error}</p>`;
-                } else if (response.message) {
-                    resultDiv.innerHTML = `<p>${response.message}</p>`;
-                } else {
-                    let html = '<h2>Résultats</h2>';
-                    html += '<div class="results-container">';
-                    
-                    if (Array.isArray(response) && response.length > 0) {
-                        // Création du tableau
-                        html += '<div class="table-container">';
-                        html += '<table>';
-                        html += '<thead><tr><th>Période</th><th>Montant</th></tr></thead>';
-                        html += '<tbody>';
-                        
-                        response.forEach(item => {
-                            html += `<tr>
-                                <td>${item.mois}/${item.annee}</td>
-                                <td>${Number(item.total_par_mois).toLocaleString()} Ar</td>
-                            </tr>`;
-                        });
-                        
-                        html += '</tbody></table></div>';
-                        
-                        // Création du canvas pour le graphique
-                        html += '<div class="chart-container">';
-                        html += '<canvas id="tauxChart"></canvas>';
-                        html += '</div>';
-                        
-                        html += '</div>'; // Fermeture de results-container
-                        
-                        resultDiv.innerHTML = html;
-                        
-                        // Générer le graphique
-                        createChart(response);
-                    } else {
-                        html += '<p>Aucun résultat trouvé</p>';
-                        resultDiv.innerHTML = html;
-                    }
-                }
+                displayTauxResults(response);
             });
         }
         
-        function createChart(data) {
+        function getMontants() {
+            const moisDebut = document.getElementById('moisDebut2').value;
+            const anneeDebut = document.getElementById('anneeDebut2').value;
+            const moisFin = document.getElementById('moisFin2').value;
+            const anneeFin = document.getElementById('anneeFin2').value;
+            
+            if (!moisDebut || !anneeDebut || !moisFin || !anneeFin) {
+                document.getElementById('resultats-montants').innerHTML = 
+                    '<p class="error">Veuillez remplir tous les champs</p>';
+                return;
+            }
+            
+            if (!validateDateRange(moisDebut, anneeDebut, moisFin, anneeFin)) {
+                document.getElementById('resultats-montants').innerHTML = 
+                    '<p class="error">La date de fin doit être postérieure ou égale à la date de début</p>';
+                return;
+            }
+            
+            const data = `moisDebut=${encodeURIComponent(moisDebut)}` +
+                         `&anneeDebut=${encodeURIComponent(anneeDebut)}` +
+                         `&moisFin=${encodeURIComponent(moisFin)}` +
+                         `&anneeFin=${encodeURIComponent(anneeFin)}`;
+            
+            ajax('GET', '/pret/montant-total-reste?' + data, null, function(response) {
+                displayMontantsResults(response);
+            });
+        }
+        
+        function validateDateRange(moisDebut, anneeDebut, moisFin, anneeFin) {
+            const dateDebut = new Date(`${anneeDebut}-${moisDebut}-01`);
+            const dateFin = new Date(`${anneeFin}-${moisFin}-01`);
+            return dateFin >= dateDebut;
+        }
+        
+        function displayTauxResults(response) {
+            const resultDiv = document.getElementById('resultats-taux');
+            
+            if (response.error) {
+                resultDiv.innerHTML = `<p class="error">${response.error}</p>`;
+            } else if (response.message) {
+                resultDiv.innerHTML = `<p>${response.message}</p>`;
+            } else {
+                let html = '<h2>Résultats des taux</h2>';
+                html += '<div class="results-container">';
+                
+                if (Array.isArray(response) && response.length > 0) {
+                    html += '<div class="table-container">';
+                    html += '<table>';
+                    html += '<thead><tr><th>Période</th><th>Montant</th></tr></thead>';
+                    html += '<tbody>';
+                    
+                    response.forEach(item => {
+                        html += `<tr>
+                            <td>${item.mois}/${item.annee}</td>
+                            <td>${Number(item.total_par_mois).toLocaleString()} Ar</td>
+                        </tr>`;
+                    });
+                    
+                    html += '</tbody></table></div>';
+                    html += '<div class="chart-container">';
+                    html += '<canvas id="tauxChart"></canvas>';
+                    html += '</div>';
+                    html += '</div>';
+                    
+                    resultDiv.innerHTML = html;
+                    createTauxChart(response);
+                } else {
+                    html += '<p>Aucun résultat trouvé</p>';
+                    resultDiv.innerHTML = html;
+                }
+            }
+        }
+        
+        function displayMontantsResults(response) {
+            const resultDiv = document.getElementById('resultats-montants');
+            
+            if (response.error) {
+                resultDiv.innerHTML = `<p class="error">${response.error}</p>`;
+            } else if (response.entrees !== undefined && response.sorties !== undefined) {
+                const entrees = Number(response.entrees) || 0;
+                const sorties = Number(response.sorties) || 0;
+                const solde = entrees - sorties;
+                
+                let html = '<h2>Résultats des montants</h2>';
+                
+                // Cartes de résumé
+                html += '<div class="summary-cards">';
+                html += `<div class="summary-card entrees">
+                    <h3>Entrées</h3>
+                    <div class="amount">${entrees.toLocaleString()} Ar</div>
+                    <div class="label">Montant total des entrées</div>
+                </div>`;
+                
+                html += `<div class="summary-card sorties">
+                    <h3>Sorties</h3>
+                    <div class="amount">${sorties.toLocaleString()} Ar</div>
+                    <div class="label">Montant total des sorties</div>
+                </div>`;
+                
+                html += `<div class="summary-card solde">
+                    <h3>Solde</h3>
+                    <div class="amount">${solde.toLocaleString()} Ar</div>
+                    <div class="label">Différence (Entrées - Sorties)</div>
+                </div>`;
+                html += '</div>';
+                
+                // Graphique
+                html += '<div class="chart-container">';
+                html += '<canvas id="montantsChart"></canvas>';
+                html += '</div>';
+                
+                resultDiv.innerHTML = html;
+                createMontantsChart(entrees, sorties, solde);
+            } else {
+                resultDiv.innerHTML = '<p>Aucun résultat trouvé</p>';
+            }
+        }
+        
+        function createTauxChart(data) {
             if (chartInstance) {
                 chartInstance.destroy();
             }
             
             const ctx = document.getElementById('tauxChart').getContext('2d');
-            
             const labels = data.map(item => `${item.mois}/${item.annee}`);
             const amounts = data.map(item => item.total_par_mois);
             
             chartInstance = new Chart(ctx, {
-                type: 'bar', 
+                type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
@@ -399,12 +674,7 @@
                         title: {
                             display: true,
                             text: 'Évolution des montants de prêts',
-                            font: {
-                                size: 16
-                            }
-                        },
-                        legend: {
-                            position: 'top',
+                            font: { size: 16 }
                         },
                         tooltip: {
                             callbacks: {
@@ -421,14 +691,51 @@
                                 callback: function(value) {
                                     return value.toLocaleString() + ' Ar';
                                 }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
                             }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createMontantsChart(entrees, sorties, solde) {
+            if (montantsChartInstance) {
+                montantsChartInstance.destroy();
+            }
+            
+            const ctx = document.getElementById('montantsChart').getContext('2d');
+            
+            montantsChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Entrées', 'Sorties'],
+                    datasets: [{
+                        data: [entrees, sorties],
+                        backgroundColor: [
+                            'rgba(76, 175, 80, 0.8)',
+                            'rgba(244, 67, 54, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(76, 175, 80, 1)',
+                            'rgba(244, 67, 54, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Répartition Entrées/Sorties',
+                            font: { size: 16 }
                         },
-                        x: {
-                            grid: {
-                                display: false
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed.toLocaleString() + ' Ar';
+                                }
                             }
                         }
                     }
