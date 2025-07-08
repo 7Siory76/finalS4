@@ -28,3 +28,9 @@ VALUES
 ('Validé'),
 ('Rejeté'),
 ('Payé');
+
+INSERT INTO type_assurance (nom, taux_assurance)
+VALUES 
+('credit', 5.5),
+('milay', 6.5);
+
