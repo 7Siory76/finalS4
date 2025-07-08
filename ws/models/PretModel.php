@@ -32,18 +32,19 @@ class PretModel {
             
             // Insérer le prêt
             $stmt = $db->prepare("INSERT INTO pret 
-                                 (date_debut, date_fin, montant_total, Id_type_remboursement_, 
-                                  Id_usage, Id_type_pret, Id_client) 
-                                 VALUES (?, ?, ?, 1, ?, ?, ?)");
-            
-            $result = $stmt->execute([
-                $data['date_debut'],
-                $data['date_fin'],
-                $data['montant_total'],
-                $data['Id_usage'],
-                $data['Id_type_pret'],
-                $data['Id_client']
-            ]);
+                     (date_debut, date_fin, montant_total, Id_type_remboursement_, 
+                      Id_usage, Id_type_pret, Id_client,Id_type_assurance) 
+                     VALUES (?, ?, ?, 1, ?, ?, ?, ?)");
+
+$result = $stmt->execute([
+    $data['date_debut'],           
+    $data['date_fin'],             
+    $data['montant_total'],        
+    $data['Id_usage'],             
+    $data['Id_type_pret'],         
+    $data['Id_client'],            
+    $data['Id_type_assurance']     
+]);
             
             if (!$result) {
                 error_log("Erreur SQL: " . print_r($stmt->errorInfo(), true));

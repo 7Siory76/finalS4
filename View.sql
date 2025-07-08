@@ -32,7 +32,6 @@ JOIN usages u ON p.Id_usage = u.Id_usage
 JOIN type_remboursement_ tr ON p.Id_type_remboursement_ = tr.Id_type_remboursement_;
 
 
-
 CREATE VIEW vue_usage_type_pret_client AS
 SELECT 
     u.Id_usage,
@@ -48,16 +47,19 @@ SELECT
     c.Id_client,
     c.email AS client_email,
     c.salaire_mensuel,
-    tr.libelle,
+    tr.libelle AS type_remboursement_libelle,
+    tr.mois AS remboursement_mois,
+    ta.Id_type_assurance,
     ta.taux_assurance,
-    ta.nom
+    ta.nom AS type_assurance_nom,
+    (SELECT mf.montant_ FROM mouvement_fond mf ORDER BY mf.Id_mouvement_fond DESC LIMIT 1) AS dernier_montant_fond
 FROM 
     usages u
-CROSS JOIN 
-    type_pret tp
-CROSS JOIN 
-    client c
-CROSS JOIN 
-    type_remboursement_ tr
-CROSS JOIN
-    type_assurance ta;
+JOIN 
+    type_pret tp ON 1=1  
+JOIN 
+    client c ON 1=1      
+JOIN 
+    type_remboursement_ tr ON 1=1  
+JOIN
+    type_assurance ta ON 1=1;       
