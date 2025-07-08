@@ -286,11 +286,11 @@
             
             data.forEach(item => {
                 // Utiliser 'nom' comme clé unique puisqu'il n'y a pas d'Id_type_assurance dans la vue
-                if (!typesAssurance[item.nom]) {
-                    typesAssurance[item.nom] = item.nom;
+                if (!typesAssurance[item.Id_type_assurance]) {
+                    typesAssurance[item.Id_type_assurance] = item.Id_type_assurance;
                     const option = document.createElement("option");
                     option.value = item.Id_type_assurance; // Utiliser le nom comme valeur
-                    option.textContent = `${item.nom} (${item.taux_assurance}%)`;
+                    option.textContent = `${item.type_assurance_nom} (${item.taux_assurance}%)`;
                     selectTypeAssurance.appendChild(option);
                 }
             });
