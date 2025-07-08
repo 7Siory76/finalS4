@@ -27,8 +27,8 @@ class PretController {
 
             // Validation des données
             if (empty($request->date_debut) || empty($request->date_fin) || 
-                empty($request->montant_total) || empty($request->Id_usage) || 
-                empty($request->Id_type_pret) || empty($request->Id_client)) {
+                empty($request->montant_total) || empty($request->id_usage) || 
+                empty($request->id_type_pret) || empty($request->id_client)) {
                 Flight::json(['message' => 'Tous les champs obligatoires doivent être remplis'], 400);
                 return;
             }
@@ -42,14 +42,26 @@ class PretController {
                 return;
             }
 
+            // CORRECTION: Gestion de l'ID d'assurance
+            $idAssurance = null;
+            if (!empty($request->id_assurance)) {
+                // Si vous envoyez le nom de l'assurance, vous devez récupérer l'ID
+                // Ou adapter selon votre logique
+                $idAssurance = $request->id_assurance;
+            } elseif (!empty($request->nom_assurance)) {
+                // Récupérer l'ID à partir du nom
+                $idAssurance = $request->nom_assurance;
+            }
+
             // Création du prêt
             $data = [
                 'date_debut' => $request->date_debut,
                 'date_fin' => $request->date_fin,
                 'montant_total' => $request->montant_total,
-                'Id_usage' => $request->Id_usage,
-                'Id_type_pret' => $request->Id_type_pret,
-                'Id_client' => $request->Id_client
+                'Id_usage' => $request->id_usage,
+                'Id_type_pret' => $request->id_type_pret,
+                'Id_client' => $request->id_client,
+                'Id_type_assurance' => $idAssurance  // CORRECTION: Nom cohérent
             ];
 
             $idPret = PretModel::createPret($data);
@@ -87,7 +99,11 @@ class PretController {
                     'Id_status' => 1 // Assurez-vous que ce status existe dans votre table
                 ];
                 
-                PretModel::createMontantAPayer($echeance);
+                $result = PretModel::createMontantAPayer($echeance);
+                if (!$result) {
+                    error_log("Erreur lors de la création de l'échéance: " . print_r($echeance, true));
+                }
+                
                 $current->add(new DateInterval('P1M'));
             }
 

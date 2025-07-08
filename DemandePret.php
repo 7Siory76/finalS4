@@ -200,6 +200,15 @@
                 width: 100%;
             }
         }
+        .error {
+            color: red;
+            font-size: 12px;
+        }
+        .success {
+            color: green;
+            font-size: 14px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -208,20 +217,25 @@
     <div class="container">
         <div class="form-container">
             <h3>Formulaire de prêt</h3>
-            <form>
+            <form id="loanForm">
+            <div id="fund-info" class="fund-info">
+                <h4>💰 Fond disponible</h4>
+                <p id="fund-amount">Chargement...</p>
+            </div>
+            
                 <div class="form-group">
                     <label for="date_debut">Date de début :</label>
-                    <input type="date" id="date_debut" name="date_debut"  required onchange="calculerDuree()">
+                    <input type="date" id="date_debut" name="date_debut" required onchange="calculerDuree()">
                 </div>
 
                 <div class="form-group">
                     <label for="date_fin">Date de fin :</label>
-                    <input type="date" id="date_fin" name="date_fin"  required onchange="calculerDuree()">
+                    <input type="date" id="date_fin" name="date_fin" required onchange="calculerDuree()">
                 </div>
 
                 <div class="form-group">
                     <label for="montant_total">Montant total :</label>
-                    <input type="number" id="montant_total" name="montant_total" value="20000" required>
+                    <input type="number" id="montant_total" name="montant_total" value="20000" required min="0" step="0.01">
                 </div>
 
                 <div class="form-group">
@@ -254,6 +268,16 @@
                 <input type="hidden" id="montant_total_estime" name="montant_total_estime">
                 <input type="hidden" id="mensualite_estimee" name="mensualite_estimee">
 
+                <div class="form-group">
+                    <label for="id_assurance">Type assurance :</label>
+                    <select id="id_assurance" name="id_assurance" required>
+                        <option value="">Chargement...</option>
+                    </select>
+                </div>
+                
+                <input type="hidden" id="montant_total_rembourser" name="montant_total_rembourser">
+                <div id="messages"></div>
+                
                 <button type="button" onclick="chargerDonnees()">Charger les options</button>
                 <button type="button" onclick="simulerPret()">Simuler le prêt</button>
                 <button type="button" onclick="ajouterUnpret()">Enregistrer le prêt</button>
@@ -274,36 +298,96 @@
     <script>
     const apiBase = "http://localhost/finalS4/ws";
     let allPretData = []; // Pour stocker toutes les données des prêts
+    let fondDisponible=0;
 
-    function ajax(method, url, data, callback) {
-        const xhr = new XMLHttpRequest();
-        xhr.open(method, apiBase + url, true);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                callback(JSON.parse(xhr.responseText));
-            }
-        };
-        xhr.send(data);
-    }
-
-    function showMessage(message, type) {
-        const messageContainer = document.getElementById('message-container');
-        messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
+    function showMessage(message, type = 'info') {
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML = `<div class="${type}">${message}</div>`;
         setTimeout(() => {
-            messageContainer.innerHTML = '';
+            messagesDiv.innerHTML = '';
         }, 5000);
     }
 
+    function ajax(method, url, data, callback, errorCallback) {
+        const xhr = new XMLHttpRequest();
+        xhr.open(method, apiBase + url, true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.error("Erreur de parsing JSON:", e);
+                        if (errorCallback) errorCallback("Erreur de format de réponse");
+                    }
+                } else {
+                    console.error("Erreur HTTP:", xhr.status, xhr.statusText);
+                    if (errorCallback) errorCallback(`Erreur HTTP: ${xhr.status}`);
+                }
+            }
+        };
+        
+        xhr.onerror = () => {
+            console.error("Erreur réseau");
+            if (errorCallback) errorCallback("Erreur de connexion");
+        };
+        
+        xhr.send(data);
+    }
+//     function verifierFondDisponible() {
+//     const montant = parseFloat(document.getElementById("montant_total").value);
+//     const fundInfo = document.getElementById("fund-info");
+//     const btnEnregistrer = document.querySelector("button[onclick='ajouterUnpret()']");
+    
+//     if (montant && fondDisponible > 0) {
+//         if (montant > fondDisponible) {
+//             fundInfo.className = "fund-info insufficient-fund";
+//             fundInfo.innerHTML = `
+//                 <h4>❌ Fond insuffisant</h4>
+//                 <p>Montant demandé: <strong>${montant.toFixed(2)} €</strong></p>
+//                 <p>Fond disponible: <strong>${fondDisponible.toFixed(2)} €</strong></p>
+//             `;
+//             btnEnregistrer.disabled = true;
+//             showMessage("Fond insuffisant pour ce montant de prêt", "error");
+//             return false;
+//         } else {
+//             fundInfo.className = "fund-info";
+//             fundInfo.innerHTML = `
+//                 <h4>💰 Fond disponible</h4>
+//                 <p>Montant demandé: <strong>${montant.toFixed(2)} €</strong></p>
+//                 <p>Fond disponible: <strong>${fondDisponible.toFixed(2)} €</strong></p>
+//                 <p class="success">Reste après prêt: ${(fondDisponible - montant).toFixed(2)} €</p>
+//             `;
+//             btnEnregistrer.disabled = false;
+//             return true;
+//         }
+//     }
+//     return false;
+// }
     function chargerDonnees() {
-        // Charger toutes les données depuis la vue
+        showMessage("Chargement des données...", "info");
+        
         ajax("GET", "/pret", null, (data) => {
             if (!data || data.error) {
                 console.error("Erreur de chargement:", data ? data.error : "Pas de données");
+                showMessage("Erreur de chargement des données", "error");
                 return;
             }
             
             allPretData = data; // Stocker les données pour les utiliser ailleurs
+            
+            // if (data.length > 0 && data[0].dernier_montant_fond !== null) {
+            //     fondDisponible = parseFloat(data[0].dernier_montant_fond);
+            //     document.getElementById("fund-amount").textContent = `${fondDisponible.toFixed(2)} €`;
+            // } else {
+            //     fondDisponible = 0;
+            //     document.getElementById("fund-amount").textContent = "Aucun fond disponible";
+            // }
+
+            // verifierFondDisponible();
 
             // Remplir les clients (en éliminant les doublons)
             const clients = {};
@@ -315,7 +399,7 @@
                     clients[item.Id_client] = item.client_email;
                     const option = document.createElement("option");
                     option.value = item.Id_client;
-                    option.textContent = item.client_email + " (Salaire: " + item.salaire_mensuel + ")";
+                    option.textContent = `${item.client_email} (Salaire: ${item.salaire_mensuel})`;
                     selectClient.appendChild(option);
                 }
             });
@@ -330,8 +414,7 @@
                     typesPret[item.Id_type_pret] = item.type_pret_nom;
                     const option = document.createElement("option");
                     option.value = item.Id_type_pret;
-                    option.textContent = item.type_pret_nom + 
-                                      " (Taux: " + item.taux_interet_annuel + "%)";
+                    option.textContent = `${item.type_pret_nom} (Taux: ${item.taux_interet_annuel}%)`;
                     selectTypePret.appendChild(option);
                 }
             });
@@ -350,6 +433,26 @@
                     selectUsage.appendChild(option);
                 }
             });
+
+            // Remplir les types d'assurance (en éliminant les doublons)
+            const typesAssurance = {};
+            const selectTypeAssurance = document.getElementById("id_assurance");
+            selectTypeAssurance.innerHTML = '<option value="">-- Sélectionnez un type --</option>';
+            
+            data.forEach(item => {
+                // Utiliser 'nom' comme clé unique puisqu'il n'y a pas d'Id_type_assurance dans la vue
+                if (!typesAssurance[item.Id_type_assurance]) {
+                    typesAssurance[item.Id_type_assurance] = item.Id_type_assurance;
+                    const option = document.createElement("option");
+                    option.value = item.Id_type_assurance; // Utiliser le nom comme valeur
+                    option.textContent = `${item.type_assurance_nom} (${item.taux_assurance}%)`;
+                    selectTypeAssurance.appendChild(option);
+                }
+            });
+
+            showMessage("Données chargées avec succès", "success");
+        }, (error) => {
+            showMessage(`Erreur: ${error}`, "error");
         });
     }
 
@@ -426,12 +529,22 @@
     function afficherDetailsPret() {
         const montant = parseFloat(document.getElementById("montant_total").value);
         const typePretId = document.getElementById("id_type_pret").value;
+        
         if (!typePretId) return;
         
         const typePret = allPretData.find(item => item.Id_type_pret == typePretId);
         if (typePret) {
+            let alertMessage = '';
+            // if (montant && montant < typePret.montant_min) {
+            //     alertMessage = `<p class="error">⚠️ Montant trop faible (min: ${typePret.montant_min})</p>`;
+            // }
+            // if (montant && montant > typePret.montant_max) {
+            //     alertMessage = `<p class="error">⚠️ Montant trop élevé (max: ${typePret.montant_max})</p>`;
+            // }
+            
             const details = `
                 <h4>Détails du type de prêt</h4>
+                ${alertMessage}
                 <p><strong>Nom:</strong> ${typePret.type_pret_nom}</p>
                 <p><strong>Taux annuel:</strong> ${typePret.taux_interet_annuel}%</p>
                 <p><strong>Durée max:</strong> ${typePret.duree_remboursement_en_mois} mois</p>
@@ -449,10 +562,12 @@
         const montant = parseFloat(document.getElementById("montant_total").value);
         const typePretId = document.getElementById("id_type_pret").value;
         const clientId = document.getElementById("id_client").value;
+        const assuranceId = document.getElementById("id_assurance").value;
         const dateDebut = document.getElementById("date_debut").value;
         const dateFin = document.getElementById("date_fin").value;
         
-        if (!montant || !typePretId || !clientId || !dateDebut || !dateFin) {
+        // Validation corrigée
+        if (!montant || !typePretId || !clientId || !dateDebut || !dateFin || !assuranceId) {
             showMessage("Veuillez remplir tous les champs du formulaire", "error");
             return;
         }
@@ -461,10 +576,40 @@
         const typePret = allPretData.find(item => item.Id_type_pret == typePretId);
         const client = allPretData.find(item => item.Id_client == clientId);
         
-        if (!typePret || !client) {
-            showMessage("Données non trouvées pour la simulation", "error");
+        // Debug: vérifier les données d'assurance disponibles
+        console.log("Nom d'assurance recherché:", assuranceId);
+        console.log("Données disponibles:", allPretData.map(item => ({
+            nom: item.nom,
+            taux: item.taux_assurance
+        })));
+        
+        const assurance = allPretData.find(item => item.Id_type_assurance == assuranceId);
+        
+        if (!typePret) {
+            showMessage("Type de prêt non trouvé", "error");
             return;
         }
+        if (!client) {
+            showMessage("Client non trouvé", "error");
+            return;
+        }
+        if (!assurance) {
+            showMessage("Type d'assurance non trouvé", "error");
+            console.log("Assurance non trouvée pour nom:", assuranceId);
+            return;
+        }
+        
+        // // Validation des montants
+        // if (montant < typePret.montant_min || montant > typePret.montant_max) {
+        //     showMessage(`Le montant doit être entre ${typePret.montant_min} et ${typePret.montant_max}`, "error");
+        //     return;
+        // }
+        
+        // // Validation de la durée
+        // if (dureeMois > typePret.duree_remboursement_en_mois) {
+        //     showMessage(`La durée ne peut pas dépasser ${typePret.duree_remboursement_en_mois} mois`, "error");
+        //     return;
+        // }
         
         // Calculs de simulation
         const tauxMensuel = typePret.taux_interet_annuel / 12 / 100;
@@ -480,6 +625,14 @@
         document.getElementById("interets_totaux").value = interetTotal.toFixed(2);
         document.getElementById("montant_total_estime").value = montantTotal.toFixed(2);
         document.getElementById("mensualite_estimee").value = mensualite.toFixed(2);
+
+        // Vérifier si taux_assurance existe et est un nombre valide
+        const tauxAssurance = (assurance.taux_assurance || 0) / 100;
+        const interetAssurance = montant * tauxAssurance * dureeMois;
+        const assuranceTotal = montantTotal + interetAssurance;
+        
+        // Stocker le montant total à rembourser
+        document.getElementById("montant_total_rembourser").value = assuranceTotal.toFixed(2);
         
         // Afficher les résultats
         const simulationHTML = `
@@ -494,33 +647,45 @@
                     <td>${typePret.type_pret_nom} (${typePret.taux_interet_annuel}%)</td>
                 </tr>
                 <tr>
+                    <th>Assurance</th>
+                    <td>${assurance.nom || 'N/A'} (${assurance.taux_assurance || 0}%)</td>
+                </tr>
+                <tr>
                     <th>Durée</th>
                     <td>${dureeMois} mois (du ${dateDebut} au ${dateFin})</td>
                 </tr>
                 <tr>
                     <th>Montant emprunté</th>
-                    <td>${montant.toFixed(2)}</td>
+                    <td>${montant.toFixed(2)} €</td>
                 </tr>
                 <tr>
                     <th>Intérêts totaux</th>
-                    <td>${interetTotal.toFixed(2)}</td>
+                    <td>${interetTotal.toFixed(2)} €</td>
+                </tr>
+                <tr>
+                    <th>Montant total sans assurance</th>
+                    <td>${montantTotal.toFixed(2)} €</td>
+                </tr>
+                <tr>
+                    <th>Coût assurance</th>
+                    <td>${interetAssurance.toFixed(2)} €</td>
                 </tr>
                 <tr>
                     <th>Montant total à rembourser</th>
-                    <td>${montantTotal.toFixed(2)}</td>
-                </tr>
-                <tr>
-                    <th>Mensualité estimée</th>
-                    <td>${mensualite.toFixed(2)}</td>
+                    <td><strong>${assuranceTotal.toFixed(2)} €</strong></td>
                 </tr>
             </table>
         `;
         
         document.getElementById("simulation-details").innerHTML = simulationHTML;
-        showMessage("Simulation effectuée avec succès!", "success");
+        showMessage("Simulation terminée avec succès", "success");
     }
 
     function ajouterUnpret() {
+    //     if (!verifierFondDisponible()) {
+    //     showMessage("Impossible d'enregistrer - fonds insuffisants", "error");
+    //     return;
+    // }
         // Validation simple côté client
         const dateDebut = document.getElementById("date_debut").value;
         const dateFin = document.getElementById("date_fin").value;
@@ -528,21 +693,39 @@
         const idClient = document.getElementById("id_client").value;
         const idTypePret = document.getElementById("id_type_pret").value;
         const idUsage = document.getElementById("id_usage").value;
+        const idAssurance = document.getElementById("id_assurance").value;
         const montantTotalRembourser = document.getElementById("montant_total_rembourser").value;
 
-        if (!dateDebut || !dateFin || !montantTotal || !idClient || !idTypePret || !idUsage) {
+        if (!dateDebut || !dateFin || !montantTotal || !idClient || !idTypePret || !idUsage || !idAssurance) {
             showMessage("Veuillez remplir tous les champs et simuler le prêt avant d'enregistrer !", "error");
             return;
         }
 
-        // Construire la chaîne de données au format URL-encodé (noms cohérents)
+        if (!montantTotalRembourser) {
+            showMessage("Veuillez d'abord simuler le prêt avant de l'enregistrer !", "error");
+            return;
+        }console.log("Valeurs du formulaire:");
+    console.log("- dateDebut:", dateDebut);
+    console.log("- dateFin:", dateFin);
+    console.log("- montantTotal:", montantTotal);
+    console.log("- idClient:", idClient);
+    console.log("- idTypePret:", idTypePret);
+    console.log("- idUsage:", idUsage);
+    console.log("- idAssurance:", idAssurance);
+    console.log("- montantTotalRembourser:", montantTotalRembourser);
+
+
+        // Construire la chaîne de données au format URL-encodé
         const dataToSend = `date_debut=${encodeURIComponent(dateDebut)}` +
                            `&date_fin=${encodeURIComponent(dateFin)}` +
                            `&montant_total=${encodeURIComponent(montantTotal)}` +
                            `&montant_total_rembourser=${encodeURIComponent(montantTotalRembourser)}` +
-                           `&Id_client=${encodeURIComponent(idClient)}` +
-                           `&Id_type_pret=${encodeURIComponent(idTypePret)}` +
-                           `&Id_usage=${encodeURIComponent(idUsage)}`;
+                           `&id_client=${encodeURIComponent(idClient)}` +
+                           `&id_type_pret=${encodeURIComponent(idTypePret)}` +
+                           `&id_usage=${encodeURIComponent(idUsage)}` +
+                           `&id_assurance=${encodeURIComponent(idAssurance)}`; // Utiliser le nom au lieu de l'ID
+
+        showMessage("Enregistrement en cours...", "info");
 
         // Envoyer les données au serveur
         ajax("POST", "/pret", dataToSend, (response) => {
@@ -550,14 +733,16 @@
             if (response && response.message && response.message.includes('succès')) {
                 showMessage("Prêt enregistré avec succès!", "success");
                 // Réinitialiser le formulaire
-                document.querySelector('form').reset();
+                document.getElementById('loanForm').reset();
                 document.getElementById("simulation-details").innerHTML = '<p>Veuillez remplir le formulaire et cliquer sur "Simuler le prêt"</p>';
             } else {
                 showMessage("Erreur lors de l'enregistrement: " + (response.message || "Erreur inconnue"), "error");
             }
+        }, (error) => {
+            showMessage(`Erreur lors de l'enregistrement: ${error}`, "error");
         });
     }
-    
+
     // Charger les données au chargement de la page
     window.onload = chargerDonnees;
     </script>
